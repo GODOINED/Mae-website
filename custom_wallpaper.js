@@ -1,108 +1,106 @@
-// custom_wallpaper.js — эффект волнистого искажения (Windows 98 wave)
+// custom_wallpaper.js — волнистое искажение как в Windows 98 (оптимизировано, края не обрезаются)
 (function() {
     let canvas = null;
     let ctx = null;
     let animationId = null;
     let resizeHandler = null;
-    let bgImage = null;           // загруженное изображение
+    let bgImage = null;
     let imageLoaded = false;
-    let time = 0;                 // для анимации
+    let extendedCanvas = null; // расширенное изображение (с запасом по бокам)
+    let time = 0;
 
-    // Параметры волны
-    const waveParams = {
-        amplitude: 2,             // сила искажения (пиксели)
-        frequency: 0.02,           // частота (чем больше, тем чаще волны)
-        speed: 0.5,                // скорость движения
-        time: 0
+    // Параметры волны — можешь менять по вкусу
+    const wave = {
+        amplitude: 30,   // сила искажения (пиксели)
+        frequency: 0.02, // частота волн
+        speed: 2         // скорость движения
     };
 
     function loadImage() {
         return new Promise((resolve, reject) => {
             const img = new Image();
-            // Путь к твоему изображению (можно заменить на любое другое)
+            // Путь к твоему изображению в папке materialsl
             img.src = 'materialsl/wallpaper.jpg';
             img.crossOrigin = 'anonymous';
             img.onload = () => {
                 bgImage = img;
                 imageLoaded = true;
+                createExtendedCanvas();
                 resolve();
             };
             img.onerror = () => {
-                console.warn('Failed to load wallpaper image, using gradient fallback');
+                console.warn('Не удалось загрузить фон, используется градиент');
                 imageLoaded = false;
                 reject();
             };
         });
     }
 
-    // Рисует искажённое изображение или градиент
-    function drawDistorted() {
+    // Создаёт расширенный offscreen‑холст, который шире основного на 2 * amplitude
+    // Это позволяет сдвигать изображение без появления пустых краёв
+    function createExtendedCanvas() {
+        if (!bgImage || !canvas) return;
+
+        const width = canvas.width;
+        const height = canvas.height;
+        const amp = wave.amplitude;
+
+        // Расширенная ширина: холст + запас слева и справа
+        const extWidth = width + 2 * amp;
+        // Масштабируем изображение так, чтобы оно заполнило эту ширину, сохраняя пропорции
+        const scale = extWidth / bgImage.width;
+        const scaledHeight = bgImage.height * scale;
+
+        extendedCanvas = document.createElement('canvas');
+        extendedCanvas.width = extWidth;
+        extendedCanvas.height = height; // обрезаем по высоте, лишнее сверху/снизу центрируем
+
+        const extCtx = extendedCanvas.getContext('2d');
+        const yOffset = (height - scaledHeight) / 2;
+        extCtx.drawImage(bgImage, 0, 0, bgImage.width, bgImage.height,
+                         0, yOffset, extWidth, scaledHeight);
+    }
+
+    function draw() {
         if (!ctx || !canvas) return;
 
         const width = canvas.width;
         const height = canvas.height;
+        const amp = wave.amplitude;
 
-        // Очищаем
         ctx.clearRect(0, 0, width, height);
 
-        // Если изображение загружено – используем его, иначе рисуем градиент
-        if (imageLoaded && bgImage) {
-            // Создаём временный canvas, чтобы рисовать искажённое изображение
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = width;
-            tempCanvas.height = height;
-            const tempCtx = tempCanvas.getContext('2d');
+        if (imageLoaded && extendedCanvas) {
+            // Разбиваем на горизонтальные полосы — так быстрее, чем попиксельно
+            const steps = 50; // регулируй для баланса плавность/производительность
+            const stepHeight = height / steps;
 
-            // Рисуем изображение на временном canvas (масштабируем под размер)
-            tempCtx.drawImage(bgImage, 0, 0, width, height);
+            for (let i = 0; i < steps; i++) {
+                const y = i * stepHeight;
+                // Смещение зависит от Y и времени
+                const offset = amp * Math.sin(y * wave.frequency + time);
 
-            // Получаем данные пикселей временного canvas
-            const imageData = tempCtx.getImageData(0, 0, width, height);
-            const data = imageData.data;
+                // Берём полосу из расширенного изображения со сдвигом
+                // srcX = amp - offset : при offset>0 смещаемся влево (изображение едет вправо)
+                const srcX = amp - offset;
 
-            // Создаём новый ImageData для искажённого изображения
-            const distortedData = ctx.createImageData(width, height);
-            const distorted = distortedData.data;
-
-            // Проходим по каждой строке
-            for (let y = 0; y < height; y++) {
-                // Сдвиг по X зависит от y и времени
-                // Можно также сделать зависимость от x для более сложного эффекта, но классика – горизонтальное смещение, зависящее от y.
-                const offset = Math.floor(
-                    waveParams.amplitude * Math.sin(y * waveParams.frequency + waveParams.time)
+                ctx.drawImage(
+                    extendedCanvas,
+                    srcX, y, width, stepHeight,   // исходный прямоугольник
+                    0, y, width, stepHeight        // целевой (на весь холст)
                 );
-
-                for (let x = 0; x < width; x++) {
-                    const srcX = x + offset;
-                    // Если srcX выходит за пределы – оставляем чёрный (или можно зациклить)
-                    if (srcX < 0 || srcX >= width) continue;
-
-                    const srcIndex = (y * width + srcX) * 4;
-                    const dstIndex = (y * width + x) * 4;
-
-                    distorted[dstIndex] = data[srcIndex];
-                    distorted[dstIndex + 1] = data[srcIndex + 1];
-                    distorted[dstIndex + 2] = data[srcIndex + 2];
-                    distorted[dstIndex + 3] = data[srcIndex + 3];
-                }
             }
-
-            // Рисуем искажённое изображение на основном canvas
-            ctx.putImageData(distortedData, 0, 0);
         } else {
-            // Запасной вариант – градиент (тоже можно искажать, но для простоты оставим без искажения)
+            // Запасной градиент на случай, если картинка не загрузилась
             const gradient = ctx.createLinearGradient(0, 0, width, height);
             gradient.addColorStop(0, '#4b0082');
             gradient.addColorStop(1, '#8a2be2');
             ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, width, height);
         }
-    }
 
-    function animate() {
-        waveParams.time += 0.02 * waveParams.speed; // увеличиваем фазу
-        drawDistorted();
-        animationId = requestAnimationFrame(animate);
+        time += 0.02 * wave.speed;
+        animationId = requestAnimationFrame(draw);
     }
 
     function start() {
@@ -125,21 +123,16 @@
             if (!canvas) return;
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            // Перерисовываем с новым размером
-            drawDistorted();
+            if (bgImage) {
+                createExtendedCanvas(); // пересоздаём расширенное изображение под новый размер
+            }
         };
-
         window.addEventListener('resize', resizeHandler);
-        resizeHandler(); // устанавливаем размер
+        resizeHandler(); // устанавливаем начальный размер
 
-        // Загружаем изображение и после запускаем анимацию
-        loadImage()
-            .catch(() => {
-                // даже если нет изображения, запускаем анимацию (будет градиент)
-            })
-            .finally(() => {
-                animate();
-            });
+        loadImage().finally(() => {
+            draw();
+        });
     }
 
     function stop() {
@@ -157,6 +150,7 @@
             ctx = null;
         }
         bgImage = null;
+        extendedCanvas = null;
         imageLoaded = false;
     }
 
