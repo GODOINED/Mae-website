@@ -1,105 +1,126 @@
-// custom_wallpaper.js — волнистое искажение как в Windows 98 (оптимизировано, края не обрезаются)
+// custom_wallpaper.js — WebGL эффект волны (GPU, без лагов)
 (function() {
     let canvas = null;
-    let ctx = null;
+    let gl = null;
+    let program = null;
+    let texture = null;
     let animationId = null;
     let resizeHandler = null;
-    let bgImage = null;
-    let imageLoaded = false;
-    let extendedCanvas = null; // расширенное изображение (с запасом по бокам)
-    let time = 0;
+    let startTime = null;
 
-    // Параметры волны — можешь менять по вкусу
-    const wave = {
-        amplitude: 30,   // сила искажения (пиксели)
-        frequency: 0.02, // частота волн
-        speed: 2         // скорость движения
-    };
+    // Вершинный шейдер (просто передаёт координаты)
+    const vertexShaderSource = `
+        attribute vec2 aPosition;
+        varying vec2 vUv;
+        void main() {
+            vUv = aPosition * 0.5 + 0.5; // преобразуем из [-1,1] в [0,1]
+            gl_Position = vec4(aPosition, 0.0, 1.0);
+        }
+    `;
 
-    function loadImage() {
+    // Фрагментный шейдер — здесь происходит волшебство
+    const fragmentShaderSource = `
+        precision highp float;
+        varying vec2 vUv;
+        uniform sampler2D uTexture;
+        uniform float uTime;
+
+        void main() {
+            float amp = 0.03;          // сила волны (чем больше, тем сильнее сдвиг)
+            float freq = 10.0;          // частота волн
+            float offset = amp * sin(vUv.y * freq + uTime * 3.0); // сдвиг по X
+            vec2 distortedUv = vec2(vUv.x + offset, vUv.y);
+            // Если изображение выходит за пределы, зацикливаем (можно заменить на обрезание)
+            distortedUv.x = fract(distortedUv.x); // зацикливание
+            vec4 color = texture2D(uTexture, distortedUv);
+            gl_FragColor = color;
+        }
+    `;
+
+    function createShader(gl, source, type) {
+        const shader = gl.createShader(type);
+        gl.shaderSource(shader, source);
+        gl.compileShader(shader);
+        if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+            console.error('Shader compile error:', gl.getShaderInfoLog(shader));
+            gl.deleteShader(shader);
+            return null;
+        }
+        return shader;
+    }
+
+    function initWebGL() {
+        gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+        if (!gl) {
+            console.error('WebGL not supported, falling back to canvas 2D');
+            return false;
+        }
+
+        // Вершинный шейдер
+        const vs = createShader(gl, vertexShaderSource, gl.VERTEX_SHADER);
+        // Фрагментный шейдер
+        const fs = createShader(gl, fragmentShaderSource, gl.FRAGMENT_SHADER);
+        if (!vs || !fs) return false;
+
+        program = gl.createProgram();
+        gl.attachShader(program, vs);
+        gl.attachShader(program, fs);
+        gl.linkProgram(program);
+        if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+            console.error('Program link error:', gl.getProgramInfoLog(program));
+            return false;
+        }
+        gl.useProgram(program);
+
+        // Вершинные данные: два треугольника, покрывающие весь экран
+        const vertices = new Float32Array([
+            -1, -1,  1, -1, -1,  1,
+            -1,  1,  1, -1,  1,  1
+        ]);
+        const buffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
+        gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
+
+        const positionLoc = gl.getAttribLocation(program, 'aPosition');
+        gl.enableVertexAttribArray(positionLoc);
+        gl.vertexAttribPointer(positionLoc, 2, gl.FLOAT, false, 0, 0);
+
+        // Устанавливаем параметры текстуры
+        gl.activeTexture(gl.TEXTURE0);
+        gl.uniform1i(gl.getUniformLocation(program, 'uTexture'), 0);
+
+        return true;
+    }
+
+    function loadTexture(url) {
         return new Promise((resolve, reject) => {
             const img = new Image();
-            // Путь к твоему изображению в папке materialsl
-            img.src = 'materialsl/wallpaper.jpg';
             img.crossOrigin = 'anonymous';
+            img.src = url;
             img.onload = () => {
-                bgImage = img;
-                imageLoaded = true;
-                createExtendedCanvas();
+                if (!gl) return reject('WebGL not ready');
+                texture = gl.createTexture();
+                gl.bindTexture(gl.TEXTURE_2D, texture);
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, img);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
                 resolve();
             };
-            img.onerror = () => {
-                console.warn('Не удалось загрузить фон, используется градиент');
-                imageLoaded = false;
-                reject();
-            };
+            img.onerror = () => reject('Failed to load image');
         });
     }
 
-    // Создаёт расширенный offscreen‑холст, который шире основного на 2 * amplitude
-    // Это позволяет сдвигать изображение без появления пустых краёв
-    function createExtendedCanvas() {
-        if (!bgImage || !canvas) return;
+    function draw(time) {
+        if (!gl || !program) return;
 
-        const width = canvas.width;
-        const height = canvas.height;
-        const amp = wave.amplitude;
+        const seconds = time * 0.001; // в секунды
+        gl.uniform1f(gl.getUniformLocation(program, 'uTime'), seconds);
 
-        // Расширенная ширина: холст + запас слева и справа
-        const extWidth = width + 2 * amp;
-        // Масштабируем изображение так, чтобы оно заполнило эту ширину, сохраняя пропорции
-        const scale = extWidth / bgImage.width;
-        const scaledHeight = bgImage.height * scale;
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.drawArrays(gl.TRIANGLES, 0, 6);
 
-        extendedCanvas = document.createElement('canvas');
-        extendedCanvas.width = extWidth;
-        extendedCanvas.height = height; // обрезаем по высоте, лишнее сверху/снизу центрируем
-
-        const extCtx = extendedCanvas.getContext('2d');
-        const yOffset = (height - scaledHeight) / 2;
-        extCtx.drawImage(bgImage, 0, 0, bgImage.width, bgImage.height,
-                         0, yOffset, extWidth, scaledHeight);
-    }
-
-    function draw() {
-        if (!ctx || !canvas) return;
-
-        const width = canvas.width;
-        const height = canvas.height;
-        const amp = wave.amplitude;
-
-        ctx.clearRect(0, 0, width, height);
-
-        if (imageLoaded && extendedCanvas) {
-            // Разбиваем на горизонтальные полосы — так быстрее, чем попиксельно
-            const steps = 50; // регулируй для баланса плавность/производительность
-            const stepHeight = height / steps;
-
-            for (let i = 0; i < steps; i++) {
-                const y = i * stepHeight;
-                // Смещение зависит от Y и времени
-                const offset = amp * Math.sin(y * wave.frequency + time);
-
-                // Берём полосу из расширенного изображения со сдвигом
-                // srcX = amp - offset : при offset>0 смещаемся влево (изображение едет вправо)
-                const srcX = amp - offset;
-
-                ctx.drawImage(
-                    extendedCanvas,
-                    srcX, y, width, stepHeight,   // исходный прямоугольник
-                    0, y, width, stepHeight        // целевой (на весь холст)
-                );
-            }
-        } else {
-            // Запасной градиент на случай, если картинка не загрузилась
-            const gradient = ctx.createLinearGradient(0, 0, width, height);
-            gradient.addColorStop(0, '#4b0082');
-            gradient.addColorStop(1, '#8a2be2');
-            ctx.fillStyle = gradient;
-            ctx.fillRect(0, 0, width, height);
-        }
-
-        time += 0.02 * wave.speed;
         animationId = requestAnimationFrame(draw);
     }
 
@@ -117,22 +138,54 @@
         canvas.style.pointerEvents = 'none';
         document.body.prepend(canvas);
 
-        ctx = canvas.getContext('2d');
-
-        resizeHandler = function() {
+        // Устанавливаем размер в пикселях
+        const resize = () => {
             if (!canvas) return;
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            if (bgImage) {
-                createExtendedCanvas(); // пересоздаём расширенное изображение под новый размер
-            }
+            if (gl) gl.viewport(0, 0, canvas.width, canvas.height);
         };
-        window.addEventListener('resize', resizeHandler);
-        resizeHandler(); // устанавливаем начальный размер
+        window.addEventListener('resize', resize);
+        resizeHandler = resize;
+        resize();
 
-        loadImage().finally(() => {
-            draw();
-        });
+        // Пытаемся инициализировать WebGL
+        if (!initWebGL()) {
+            // Fallback: если WebGL не работает, используем старый 2D-метод
+            console.warn('WebGL not available, using 2D fallback');
+            fallback2D();
+            return;
+        }
+
+        // Загружаем текстуру
+        loadTexture('materialsl/wallpaper.jpg')
+            .then(() => {
+                startTime = performance.now();
+                animationId = requestAnimationFrame(draw);
+            })
+            .catch(err => {
+                console.error('Texture load error:', err);
+                // Падаем на 2D с градиентом
+                fallback2D();
+            });
+    }
+
+    function fallback2D() {
+        // Простой 2D-градиент (как запасной вариант)
+        if (!canvas) return;
+        const ctx = canvas.getContext('2d');
+        function drawGradient() {
+            if (!ctx || !canvas) return;
+            const width = canvas.width;
+            const height = canvas.height;
+            const gradient = ctx.createLinearGradient(0, 0, width, height);
+            gradient.addColorStop(0, '#4b0082');
+            gradient.addColorStop(1, '#8a2be2');
+            ctx.fillStyle = gradient;
+            ctx.fillRect(0, 0, width, height);
+            animationId = requestAnimationFrame(drawGradient);
+        }
+        drawGradient();
     }
 
     function stop() {
@@ -147,11 +200,10 @@
         if (canvas) {
             canvas.remove();
             canvas = null;
-            ctx = null;
         }
-        bgImage = null;
-        extendedCanvas = null;
-        imageLoaded = false;
+        gl = null;
+        program = null;
+        texture = null;
     }
 
     window.CustomWallpaper = {
