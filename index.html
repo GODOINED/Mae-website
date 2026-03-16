@@ -255,7 +255,26 @@
             </div>
         </div>
     </div>
-
+    <!-- Модальное окно для просмотра изображений галереи -->
+    <div class="gallery-modal-overlay" id="galleryModal">
+        <div class="gallery-modal">
+            <div class="gallery-modal-header">
+                <span class="title">Gallery Image</span>
+                <span class="close" id="closeGalleryModal">×</span>
+            </div>
+            <div class="gallery-modal-content">
+                <img id="galleryModalImage" src="" alt="Gallery image">
+                <div id="galleryModalLoading" style="text-align: center; margin: 10px 0; font-family: 'W95Font', monospace; color: #000080; display: none;">
+                    <span>Loading</span>
+                    <span class="loading-dots">...</span>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
+                    <button id="galleryModalPrevBtn" class="project-button">← Previous</button>
+                    <button id="galleryModalNextBtn" class="project-button">Next →</button>
+                </div>
+            </div>
+        </div>
+    </div>
     <!-- Clippy -->
     <div class="clippy-container" id="clippyContainer">
         <div class="clippy-bubble" id="clippyMessage"></div>
