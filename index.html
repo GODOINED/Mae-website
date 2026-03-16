@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>RB_COM Website</title>
+    <link rel="stylesheet" href="https://unpkg.com/simplebar@latest/dist/simplebar.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="win95-window">
+        <div class="window-title">
+            <div class="title-text">My Profile — Robert</div>
+            <div class="title-buttons">
+                <button class="minimize">_</button>
+                <button class="maximize">□</button>
+                <button class="close">×</button>
+            </div>
+        </div>
+
+        <div class="menu-bar">
+            <span class="menu-item">File</span>
+            <span class="menu-item">Edit</span>
+            <span class="menu-item">View</span>
+            <span class="menu-item">Help</span>
+        </div>
+
+        <div class="toolbar">
+            <button class="tool-button">📄</button>
+            <button class="tool-button">✂️</button>
+            <button class="tool-button">📋</button>
+            <button class="tool-button">💾</button>
+        </div>
+
+        <div class="window-content">
+            <div class="left-panel">
+                <ul class="folder-list" id="menu">
+                    <li data-target="about" class="selected"><a href="#about">📁 About</a></li>
+                    <li data-target="projects"><a href="#projects">📁 My Projects</a></li>
+                    <li data-target="friends"><a href="#friends">📁 Friends</a></li>
+                    <li data-target="guestbook"><a href="#guestbook">📁 Guestbook</a></li>
+                    <li data-target="paint"><a href="#paint">📁 Paint</a></li>
+                    <li data-target="settings"><a href="#settings">📁 Settings</a></li>
+                </ul>
+            </div>
+
+            <div class="right-panel" data-simplebar>
+                <div class="section" id="about">
+                    <h2>About</h2>
+                    <div class="about-content">
+                        <div class="about-text">
+                            <p><strong>Name:</strong> Robert</p>
+                            <p><strong>Occupation:</strong> Gamedev, gamer, 3D artist</p>
+                            <p><strong>About me:</strong> Furry bear and femboy :3, i love playing game</p>
+                            <p><strong>Contact:</strong> Discord: RB_COM#8016</p>
+                        </div>
+                        <div class="about-photo">
+                            <img src="materialsl/avatar.jpg" alt="My photo">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Галерея -->
+                <div class="section" id="gallery">
+                    <h2>Gallery</h2>
+                    <div id="gallery-breadcrumbs" style="margin-bottom: 10px; font-size: 12px;"></div>
+                    <div class="gallery-grid" id="gallery-container">
+                        <p>Loading gallery...</p>
+                    </div>
+                </div>
+
+                <div class="section" id="friends">
+                    <h2>Friends</h2>
+                    <div class="friends-content" id="friends-container">
+                        <p>Loading friends...</p>
+                    </div>
+                </div>
+
+                <!-- Гостевая книга -->
+                <div class="section" id="guestbook">
+                    <h2>Guestbook</h2>
+                    <div class="guestbook-form" style="margin-bottom: 20px;">
+                        <p><strong>Leave a message:</strong></p>
+                        <input type="text" id="gbName" placeholder="Your name" style="width: 100%; margin-bottom: 8px; padding: 4px; border: 2px inset #fff;">
+                        <textarea id="gbMessage" rows="3" placeholder="Your message..." style="width: 100%; margin-bottom: 8px; padding: 4px; border: 2px inset #fff; font-family: inherit;"></textarea>
+                        <button id="gbSend" class="project-button" style="width: 100%;">Send</button>
+                    </div>
+                    <div id="gbMessages" class="guestbook-messages"></div>
+                    
+                    <!-- Пагинация для гостевой книги -->
+                    <div class="guestbook-pagination" style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
+                        <button id="guestbookPrevPageBtn" class="project-button" disabled>← Previous page</button>
+                        <span id="guestbookPageIndicator" style="align-self: center; font-size: 12px;">Page 1</span>
+                        <button id="guestbookNextPageBtn" class="project-button" disabled>Next page →</button>
+                    </div>
+                </div>
+
+                <!-- Paint с увеличенным холстом -->
+                <div class="section" id="paint">
+                    <h2>Paint</h2>
+                    <div class="paint-row">
+                        <div class="canvas-container">
+                            <canvas id="mainCanvas" width="570" height="380"></canvas>
+                            <canvas id="overlayCanvas" width="570" height="380"></canvas>
+                        </div>
+                        
+                        <div class="paint-panel">
+                            <div style="display: flex; gap: 5px; justify-content: space-between;">
+                                <button id="toolBrush" class="project-button active" style="flex: 1;">Brush</button>
+                                <button id="toolEraser" class="project-button" style="flex: 1;">Eraser</button>
+                                <button id="clearCanvas" class="project-button" style="flex: 1;">Clear</button>
+                                <button id="saveCanvas" class="project-button" style="flex: 1;">Save</button>
+                                <button id="undoBtn" class="project-button" style="flex: 1;">Undo</button>
+                            </div>
+
+                            <div style="display: flex; align-items: center; gap: 5px;">
+                                <label style="width: 40px;">Size:</label>
+                                <input type="range" id="brushSizeSlider" min="1" max="20" value="2" style="flex: 1;">
+                                <span id="brushSizeValue">2</span>
+                            </div>
+
+                            <div>
+                                <div class="color-palette" id="colorPalette"></div>
+                                <div style="display: flex; align-items: center; gap: 5px; margin-top: 5px;">
+                                    <button id="pickColorBtn" class="project-button" style="flex: 1;">Pick Color</button>
+                                    <div id="currentColorIndicator" style="width: 40px; height: 40px; border: 2px solid #808080; border-top-color: #ffffff; border-left-color: #ffffff;"></div>
+                                </div>
+                                <input type="color" id="colorPicker" style="position: absolute; left: -9999px;">
+                            </div>
+
+                            <div style="border-top: 2px solid #808080; padding-top: 10px;">
+                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+                                    <label style="width: 20px;">R:</label>
+                                    <input type="range" id="redSlider" min="0" max="255" value="0" style="flex-grow: 1;">
+                                    <span id="redValue" style="width: 30px;">0</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+                                    <label style="width: 20px;">G:</label>
+                                    <input type="range" id="greenSlider" min="0" max="255" value="0" style="flex-grow: 1;">
+                                    <span id="greenValue" style="width: 30px;">0</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+                                    <label style="width: 20px;">B:</label>
+                                    <input type="range" id="blueSlider" min="0" max="255" value="0" style="flex-grow: 1;">
+                                    <span id="blueValue" style="width: 30px;">0</span>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 5px; margin-top: 10px;">
+                                    <label>Hex:</label>
+                                    <input type="text" id="hexInput" value="#000000" style="flex: 1; border: 2px inset #fff; font-family: monospace;">
+                                    <button id="applyHex" class="project-button" style="padding: 2px 8px;">Apply</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Панель слоёв -->
+                    <div class="layers-panel" style="margin-top: 20px; border: 2px solid #808080; padding: 8px; background: #c0c0c0;">
+                        <div style="display: flex; gap: 5px; margin-bottom: 8px; flex-wrap: wrap;">
+                            <button id="addLayerBtn" class="project-button">➕ Add layer</button>
+                            <button id="deleteLayerBtn" class="project-button">➖ Delete layer</button>
+                            <button id="mergeDownBtn" class="project-button">⬇️ Merge down</button>
+                        </div>
+                        <div id="layersList" style="max-height: 150px; background: #ffffff; border: 2px inset; padding: 4px; overflow-y: auto;"></div>
+                    </div>
+
+                    <h3 style="margin-top: 20px;">Recent Paintings</h3>
+                    <div id="paintGallery" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px;"></div>
+                    <div class="pagination" style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
+                        <button id="prevPageBtn" class="project-button" disabled>← Previous page</button>
+                        <span id="pageIndicator" style="align-self: center; font-size: 12px;">Page 1</span>
+                        <button id="nextPageBtn" class="project-button" disabled>Next page →</button>
+                    </div>
+                </div>
+
+                <div class="section" id="settings">
+                    <h2>Settings</h2>
+                    <div class="settings-content">
+                        <p><input type="checkbox" id="soundsCheckbox"> Enable sounds</p>
+                        <p><input type="checkbox" id="tooltipsCheckbox"> Show tooltips</p>
+                        <p><input type="checkbox" id="autosaveCheckbox"> Auto-save</p>
+                        <p><strong>Theme:</strong></p>
+                        <p><input type="radio" name="theme" id="themeDark" value="dark" checked> Windows 95 theme</p>
+                        <p><input type="radio" name="theme" id="themeLight" value="light"> High contrast</p>
+                        <p><strong>Wallpaper:</strong></p>
+                        <p><input type="radio" name="wallpaper" id="wallDark" value="dark" checked> Dark gradient</p>
+                        <p><input type="radio" name="wallpaper" id="wallBlue" value="blue"> Classic blue</p>
+                        <p><input type="radio" name="wallpaper" id="wallGreen" value="green"> Teal green</p>
+                        <p><input type="radio" name="wallpaper" id="wallGray" value="gray"> Gray</p>
+                        <p><input type="radio" name="wallpaper" id="wallCustom" value="custom"> Custom (purple gradient)</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="status-bar">
+            <span>Ready</span>
+            <span>|</span>
+            <span>My Computer</span>
+        </div>
+    </div>
+
+    <!-- Модальное окно для просмотра рисунков -->
+    <div class="image-modal-overlay" id="imageModal">
+        <div class="image-modal">
+            <div class="image-modal-header">
+                <span class="title">View Painting</span>
+                <span class="close" id="closeImageModal">×</span>
+            </div>
+            <div class="image-modal-content">
+                <img id="modalImage" src="" alt="Full size painting">
+                <div id="modalLoading" style="text-align: center; margin: 10px 0; font-family: 'W95Font', monospace; color: #000080; display: none;">
+                    <span>Loading</span>
+                    <span class="loading-dots">...</span>
+                </div>
+                <div style="margin-top: 10px;">
+                    <span id="modalLikes">0</span> likes
+                    <button id="modalLikeBtn" class="like-button"></button>
+                    <div id="modalDate" style="font-size: 11px; color: #404040; margin-top: 5px;"></div>
+                </div>
+                <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
+                    <button id="modalPrevBtn" class="project-button">← Previous</button>
+                    <button id="modalRandomBtn" class="project-button">🎲 Random</button>
+                    <button id="modalNextBtn" class="project-button">Next →</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно капчи -->
+    <div class="captcha-overlay" id="captchaOverlay">
+        <div class="captcha-modal" id="captchaModal">
+            <h3>Verification</h3>
+            <div class="captcha-question" id="captchaQuestion">2 + 3 = ?</div>
+            <input type="text" id="captchaAnswer" class="captcha-input" placeholder="Enter answer">
+            <div class="captcha-buttons">
+                <button id="captchaOk" class="project-button">OK</button>
+                <button id="captchaCancel" class="project-button">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Модальное окно для переименования слоя -->
+    <div class="rename-modal-overlay" id="renameLayerModal">
+        <div class="rename-modal">
+            <div class="rename-modal-header">
+                <span class="title">Rename Layer</span>
+                <span class="close" id="closeRenameModal">×</span>
+            </div>
+            <div class="rename-modal-content">
+                <p style="margin-bottom: 10px;">Enter new layer name:</p>
+                <input type="text" id="renameLayerInput" class="rename-input" placeholder="Layer name" maxlength="30">
+                <div class="rename-buttons">
+                    <button id="renameLayerOk" class="project-button">OK</button>
+                    <button id="renameLayerCancel" class="project-button">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Clippy -->
+    <div class="clippy-container" id="clippyContainer">
+        <div class="clippy-bubble" id="clippyMessage"></div>
+        <img src="materialsl/clippy/idle/frame1.png" class="clippy-character" id="clippyImage" alt="Clippy">
+    </div>
+
+    <script src="https://unpkg.com/simplebar@latest/dist/simplebar.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="clippy.js"></script>
+    <script src="custom_wallpaper.js"></script>
+    <script src="main.js"></script>
+</body>
+</html>
