@@ -383,70 +383,251 @@
         }
     }
 
-    // === Галерея (замена Projects) ===
-    let galleryData = null;           // весь загруженный JSON
-    let currentGalleryPath = '';      // текущий путь (пустая строка — корень)
-    const galleryContainer = document.getElementById('gallery-container');
-    const galleryBreadcrumbs = document.getElementById('gallery-breadcrumbs');
+// === Галерея (замена Projects) ===
+let galleryData = null;
+let currentGalleryPath = '';
+let currentGalleryItems = [];           // все элементы текущей папки (папки + файлы)
+let currentGalleryFiles = [];           // только файлы (для навигации)
+let galleryCurrentPage = 0;
+const galleryPageSize = 12;
+let galleryTotalPages = 0;
 
-    async function loadGallery(path = '') {
-        if (!galleryData) {
-            try {
-                const response = await fetch('gallery-structure.json');
-                if (!response.ok) throw new Error('Failed to load gallery data');
-                galleryData = await response.json();
-            } catch (e) {
-                console.error('Error loading gallery:', e);
-                galleryContainer.innerHTML = '<p style="color: red;">Failed to load gallery.</p>';
-                return;
-            }
-        }
+const galleryContainer = document.getElementById('gallery-container');
+const galleryBreadcrumbs = document.getElementById('gallery-breadcrumbs');
+const galleryPrevBtn = document.getElementById('galleryPrevPageBtn');
+const galleryNextBtn = document.getElementById('galleryNextPageBtn');
+const galleryPageIndicator = document.getElementById('galleryPageIndicator');
 
-        // Навигация по пути: разбиваем строку (например, "папка1/папка2")
-        const parts = path ? path.split('/').filter(p => p) : [];
-        let currentLevel = galleryData;
-        for (const part of parts) {
-            if (currentLevel[part]) {
-                currentLevel = currentLevel[part];
-            } else {
-                // если путь неверный, показываем корень
-                currentLevel = galleryData;
-                currentGalleryPath = '';
-                break;
-            }
-        }
+// Модальное окно для галереи
+const galleryModal = document.getElementById('galleryModal');
+const galleryModalImage = document.getElementById('galleryModalImage');
+const closeGalleryModal = document.getElementById('closeGalleryModal');
+const galleryModalPrevBtn = document.getElementById('galleryModalPrevBtn');
+const galleryModalNextBtn = document.getElementById('galleryModalNextBtn');
+const galleryModalLoading = document.getElementById('galleryModalLoading');
 
-        currentGalleryPath = path;
+let currentGalleryImageIndex = 0;
 
-        // Строим хлебные крошки
-        renderBreadcrumbs(parts);
-
-        // Если в текущем уровне есть папки и/или файлы
-        const folders = [];
-        const files = [];
-        for (const key in currentLevel) {
-            if (typeof currentLevel[key] === 'object' && !Array.isArray(currentLevel[key])) {
-                // это папка (объект с вложенными полями)
-                folders.push({ name: key, data: currentLevel[key] });
-            } else if (Array.isArray(currentLevel[key])) {
-                // это массив файлов (например, "images": [ ... ]) — можно обработать как файлы
-                // но в нашей структуре будем хранить файлы отдельно?
-                // Предположим структуру: { "папка1": { "images": [...], "подпапка2": {...} } }
-                // Если ключ === "images", то это массив картинок
-                if (key === 'images') {
-                    files.push(...currentLevel[key]);
-                } else {
-                    // иначе считаем, что это массив картинок прямо на этом уровне
-                    files.push(...currentLevel[key]);
-                }
-            } else if (typeof currentLevel[key] === 'string') {
-                // возможно, это прямо ссылка на картинку (если структура плоская)
-                files.push({ name: key, src: currentLevel[key] });
-            }
-        }
-
-        renderGallery(folders, files);
+// Загрузка данных галереи
+async function loadGalleryData() {
+    if (galleryData) return;
+    try {
+        const response = await fetch('gallery-structure.json');
+        if (!response.ok) throw new Error('Failed to load gallery data');
+        galleryData = await response.json();
+    } catch (e) {
+        console.error('Error loading gallery:', e);
+        if (galleryContainer) galleryContainer.innerHTML = '<p style="color: red;">Failed to load gallery.</p>';
     }
+}
+
+// Загрузка содержимого папки по пути
+async function loadGallery(path = '') {
+    await loadGalleryData();
+    if (!galleryData) return;
+
+    const parts = path ? path.split('/').filter(p => p) : [];
+    let currentLevel = galleryData;
+    for (const part of parts) {
+        if (currentLevel[part] && typeof currentLevel[part] === 'object') {
+            currentLevel = currentLevel[part];
+        } else {
+            currentLevel = galleryData;
+            currentGalleryPath = '';
+            break;
+        }
+    }
+    currentGalleryPath = path;
+
+    const folders = [];
+    const files = [];
+    for (const key in currentLevel) {
+        if (typeof currentLevel[key] === 'object' && !Array.isArray(currentLevel[key])) {
+            folders.push({ type: 'folder', name: key, path: path ? path + '/' + key : key });
+        } else if (key === 'images' && Array.isArray(currentLevel[key])) {
+            currentLevel[key].forEach(imgPath => {
+                files.push({ type: 'image', name: imgPath.split('/').pop(), src: imgPath });
+            });
+        }
+    }
+
+    folders.sort((a, b) => a.name.localeCompare(b.name));
+    files.sort((a, b) => a.name.localeCompare(b.name));
+
+    currentGalleryItems = [...folders, ...files];
+    currentGalleryFiles = files;
+    galleryCurrentPage = 0;
+    galleryTotalPages = Math.ceil(currentGalleryItems.length / galleryPageSize);
+
+    renderBreadcrumbs(parts);
+    renderGalleryPage();
+}
+
+function renderBreadcrumbs(parts) {
+    if (!galleryBreadcrumbs) return;
+    let html = '<span class="breadcrumb" data-path="">📁 Root</span>';
+    let accumulatedPath = '';
+    parts.forEach((part, index) => {
+        accumulatedPath += (index === 0 ? '' : '/') + part;
+        html += ` > <span class="breadcrumb" data-path="${accumulatedPath}">${part}</span>`;
+    });
+    galleryBreadcrumbs.innerHTML = html;
+
+    document.querySelectorAll('.breadcrumb').forEach(el => {
+        el.addEventListener('click', (e) => {
+            e.preventDefault();
+            loadGallery(el.dataset.path);
+        });
+    });
+}
+
+function renderGalleryPage() {
+    if (!galleryContainer) return;
+    galleryContainer.innerHTML = '';
+    galleryContainer.className = 'gallery-grid';
+
+    if (currentGalleryItems.length === 0) {
+        galleryContainer.innerHTML = '<p style="color: #808080; grid-column: 1/-1;">Empty folder.</p>';
+        updatePaginationButtons();
+        return;
+    }
+
+    const start = galleryCurrentPage * galleryPageSize;
+    const end = Math.min(start + galleryPageSize, currentGalleryItems.length);
+    const pageItems = currentGalleryItems.slice(start, end);
+
+    pageItems.forEach(item => {
+        if (item.type === 'folder') {
+            const div = document.createElement('div');
+            div.className = 'gallery-item';
+            div.innerHTML = `
+                <div class="gallery-cover" style="background: #d4d0c8;">
+                    <span class="folder-icon">📁</span>
+                </div>
+                <div class="gallery-title">${escapeHtml(item.name)}</div>
+                <div class="gallery-type">Folder</div>
+                <button class="gallery-button open-folder" data-path="${escapeHtml(item.path)}">Open</button>
+            `;
+            galleryContainer.appendChild(div);
+        } else {
+            const div = document.createElement('div');
+            div.className = 'gallery-item';
+            div.innerHTML = `
+                <div class="gallery-cover">
+                    <img src="${escapeHtml(item.src)}" alt="${escapeHtml(item.name)}" loading="lazy">
+                </div>
+                <div class="gallery-title">${escapeHtml(item.name)}</div>
+                <div class="gallery-type">Image</div>
+                <button class="gallery-button view-image" data-src="${escapeHtml(item.src)}">View</button>
+            `;
+            galleryContainer.appendChild(div);
+        }
+    });
+
+    document.querySelectorAll('.open-folder').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            loadGallery(btn.dataset.path);
+        });
+    });
+
+    document.querySelectorAll('.view-image').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            openGalleryModal(btn.dataset.src);
+        });
+    });
+
+    updatePaginationButtons();
+}
+
+function updatePaginationButtons() {
+    if (galleryPrevBtn && galleryNextBtn && galleryPageIndicator) {
+        galleryPrevBtn.disabled = galleryCurrentPage === 0;
+        galleryNextBtn.disabled = galleryCurrentPage >= galleryTotalPages - 1;
+        galleryPageIndicator.textContent = `Page ${galleryCurrentPage + 1} of ${galleryTotalPages || 1}`;
+    }
+}
+
+// Обработчики пагинации
+if (galleryPrevBtn) {
+    galleryPrevBtn.addEventListener('click', () => {
+        if (galleryCurrentPage > 0) {
+            galleryCurrentPage--;
+            renderGalleryPage();
+        }
+    });
+}
+if (galleryNextBtn) {
+    galleryNextBtn.addEventListener('click', () => {
+        if (galleryCurrentPage < galleryTotalPages - 1) {
+            galleryCurrentPage++;
+            renderGalleryPage();
+        }
+    });
+}
+
+// === Модальное окно для галереи ===
+function openGalleryModal(src) {
+    const index = currentGalleryFiles.findIndex(f => f.src === src);
+    if (index === -1) return;
+    currentGalleryImageIndex = index;
+    showGalleryImage();
+    galleryModal.style.display = 'flex';
+    disableBodyScroll();
+}
+
+function showGalleryImage() {
+    if (!currentGalleryFiles.length) return;
+    const img = currentGalleryFiles[currentGalleryImageIndex];
+    galleryModalImage.src = img.src;
+    galleryModalImage.onload = () => {
+        galleryModalLoading.style.display = 'none';
+        galleryModalImage.style.display = 'block';
+    };
+    galleryModalLoading.style.display = 'block';
+    galleryModalImage.style.display = 'none';
+    updateGalleryModalButtons();
+}
+
+function updateGalleryModalButtons() {
+    galleryModalPrevBtn.disabled = currentGalleryImageIndex === 0;
+    galleryModalNextBtn.disabled = currentGalleryImageIndex === currentGalleryFiles.length - 1;
+}
+
+function closeGalleryModal() {
+    galleryModal.style.display = 'none';
+    galleryModalImage.src = '';
+    enableBodyScroll();
+}
+
+if (closeGalleryModal) {
+    closeGalleryModal.addEventListener('click', closeGalleryModal);
+}
+if (galleryModal) {
+    galleryModal.addEventListener('click', (e) => {
+        if (e.target === galleryModal) closeGalleryModal();
+    });
+}
+if (galleryModalPrevBtn) {
+    galleryModalPrevBtn.addEventListener('click', () => {
+        if (currentGalleryImageIndex > 0) {
+            currentGalleryImageIndex--;
+            showGalleryImage();
+        }
+    });
+}
+if (galleryModalNextBtn) {
+    galleryModalNextBtn.addEventListener('click', () => {
+        if (currentGalleryImageIndex < currentGalleryFiles.length - 1) {
+            currentGalleryImageIndex++;
+            showGalleryImage();
+        }
+    });
+}
+
+// Инициализация
+loadGallery();
 
     function renderBreadcrumbs(parts) {
         if (!galleryBreadcrumbs) return;
