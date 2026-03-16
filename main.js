@@ -1053,7 +1053,7 @@
                 folders.push({ type: 'folder', name: key, path: path ? path + '/' + key : key });
             } else if (key === 'images' && Array.isArray(currentLevel[key])) {
                 currentLevel[key].forEach(imgPath => {
-                    files.push({ type: 'image', name: imgPath.split('/').pop(), src: imgPath });
+                    files.push({ type: 'image', name: imgPath.split('/').pop(), src: 'gallery/' + imgPath });
                 });
             }
         }
