@@ -1,14 +1,15 @@
 {
   "test": {
     "images": [
-      "gallery/test/21-d97c505685147c59744b375e10f1de9a.jpg",
-      "gallery/test/50-d45cc92229f636163fae0e24f6e69310.jpg"
+      "test/21-d97c505685147c59744b375e10f1de9a.jpg",
+      "test/50-d45cc92229f636163fae0e24f6e69310.jpg"
     ]
   },
   "images": [
-    "gallery/15-be92b481cec152541d15811966eb3ddc.jpg",
-    "gallery/4-8240407d459f8261e2f3d3c884724ed4.jpg",
-    "gallery/50-d45cc92229f636163fae0e24f6e69310.jpg",
-    "gallery/66-04a04961fb73e96a9948c3a13cc71471.jpg"
+    "15-be92b481cec152541d15811966eb3ddc.jpg",
+    "4-8240407d459f8261e2f3d3c884724ed4.jpg",
+    "50-d45cc92229f636163fae0e24f6e69310.jpg",
+    "66-04a04961fb73e96a9948c3a13cc71471.jpg",
+    "real_mario_bros.png"
   ]
 }
