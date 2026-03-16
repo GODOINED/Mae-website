@@ -1,4 +1,101 @@
-/* style.css — финальная версия с кастомными сердечками и блокировкой прокрутки */
+/* style.css — финальная версия с полной настройкой цвета через переменные */
+/* ===== ПЕРЕМЕННЫЕ ЦВЕТА ===== */
+:root {
+    /* Основные цвета окна */
+    --window-bg: #0d1a42;
+    --window-border-dark: #060e25;
+    --window-border-light: #314ea5;
+    
+    /* Градиент окна (если заданы, переопределяют --window-bg) */
+    --window-gradient-start: transparent;
+    --window-gradient-end: transparent;
+    
+    /* Градиент заголовка окна */
+    --title-gradient-start: #000066;
+    --title-gradient-end: #0a246a;
+    
+    /* Цвета панелей (тулбар, меню, статус-бар) */
+    --panel-bg: #13214d;
+    --panel-border: #202a49;
+    --panel-border-dark: #121e41;
+    
+    /* Акцентные цвета (синий) */
+    --accent-blue: #7262ff;
+    --accent-lightblue: #1084d0;
+    
+    /* Текст общий */
+    --text-primary: #ffffff;
+    --text-secondary: #ffffff;
+    --text-muted: #404040;
+    --text-clippy: #000000;
+    
+    /* Рамки и бордюры (общие серые) */
+    --border-light: #44319b;
+    --border-dark: #18113d;
+    --border-darker: #000000;
+    --border-dotted: #26207e;
+    
+    /* Белые/чёрные акценты */
+    --white: #312a81;
+    --black: #000000;
+    --white-transparent: rgba(255,255,255,0.8);
+    
+    /* Элементы слоёв (панель в Paint) */
+    --layer-bg: #304074;
+    --layer-border: #253670;
+    --layer-active: #445794;
+    --layer-text: #000000;
+    --layer-text-active: #ffffff;
+    --layer-visibility-bg: var(--panel-bg);
+    
+    /* Галерея */
+    --gallery-bg: #253670;
+    --gallery-cover-bg: #1a295e;
+    --gallery-text: #ffffff;
+    --gallery-type: #ffffff;
+    --gallery-border: var(--border-light);
+    --gallery-button-bg: var(--gallery-bg);
+    --gallery-button-text: var(--gallery-text);
+    
+    /* Модальные окна */
+    --modal-bg: #283b72;
+    --modal-border-light: #3c508d;
+    --modal-border-dark: #1a2a5a;
+    
+    /* Хлебные крошки (галерея) */
+    --breadcrumb: #000080;
+    --breadcrumb-hover: #ff0000;
+    
+    /* Иконки */
+    --icon-folder: #808080;
+    --icon-eye-open: url('materialsl/eye-open.png');
+    --icon-eye-closed: url('materialsl/eye-closed.png');
+    --icon-like-unliked: url('materialsl/like.png');
+    --icon-like-liked: url('materialsl/liked.png');
+    --icon-king: url('materialsl/king.png');
+    --icon-star: url('materialsl/star.png');
+    
+    /* Популярные рисунки */
+    --top-bg: #ffe246;
+    --top-gold: gold;
+    --top-gold-dark: #b8860b;
+    
+    /* Фон контента (левая и правая панели) */
+    --content-bg: #2c2564;
+    --content-text: var(--text-secondary);
+    
+    /* Цвета кнопок */
+    --button-bg: var(--panel-bg);
+    --button-border: var(--white);
+    --button-border-dark: var(--border-dark);
+    --button-text: var(--text-primary);
+    
+    /* Тени */
+    --shadow-color: #00000080;
+    
+    /* Параметры анимации */
+    --gradient-animation-speed: 5s;
+}
 
 @font-face {
     font-family: 'W95Font';
@@ -37,21 +134,21 @@
 .color-swatch {
     width: 30px;
     height: 30px;
-    border: 2px solid #808080;
-    border-top-color: #ffffff;
-    border-left-color: #ffffff;
+    border: 2px solid var(--border-light);
+    border-top-color: var(--white);
+    border-left-color: var(--white);
     cursor: pointer;
 }
 .color-swatch.active {
-    border: 2px solid #000080;
-    border-top-color: #ffffff;
-    border-left-color: #ffffff;
+    border: 2px solid var(--accent-blue);
+    border-top-color: var(--white);
+    border-left-color: var(--white);
 }
 .tool-button.active {
-    background: #808080;
-    border: 2px solid #808080;
-    border-top-color: #ffffff;
-    border-left-color: #ffffff;
+    background: var(--border-light);
+    border: 2px solid var(--border-light);
+    border-top-color: var(--white);
+    border-left-color: var(--white);
 }
 input[type=range] {
     -webkit-appearance: none;
@@ -60,19 +157,19 @@ input[type=range] {
 input[type=range]::-webkit-slider-runnable-track {
     width: 100%;
     height: 4px;
-    background: #c0c0c0;
-    border: 1px solid #808080;
-    border-top-color: #ffffff;
-    border-left-color: #ffffff;
+    background: var(--panel-bg);
+    border: 1px solid var(--border-light);
+    border-top-color: var(--white);
+    border-left-color: var(--white);
 }
 input[type=range]::-webkit-slider-thumb {
     -webkit-appearance: none;
     width: 12px;
     height: 20px;
-    background: #c0c0c0;
-    border: 2px solid #ffffff;
-    border-right-color: #808080;
-    border-bottom-color: #808080;
+    background: var(--panel-bg);
+    border: 2px solid var(--white);
+    border-right-color: var(--border-light);
+    border-bottom-color: var(--border-light);
     cursor: default;
     margin-top: -8px;
 }
@@ -96,21 +193,21 @@ body {
     padding: 10px;
 }
 
-/* Блокировка прокрутки при открытых модальных окнах */
 body.modal-open {
     overflow: hidden;
-    padding-right: 18px; /* компенсируем ширину скроллбара, чтобы контент не прыгал */
+    padding-right: 18px;
 }
 
+/* ===== ОСНОВНОЕ ОКНО ===== */
 .win95-window {
     width: 1200px;
     max-width: 95vw;
     max-height: 95vh;
-    background-color: #c0c0c0;
-    border: 2px solid #ffffff;
-    border-right-color: #404040;
-    border-bottom-color: #404040;
-    box-shadow: 2px 2px 0px #00000080;
+    background-color: var(--window-bg);
+    border: 2px solid var(--border-light);
+    border-right-color: var(--window-border-dark);
+    border-bottom-color: var(--window-border-dark);
+    box-shadow: 2px 2px 0px var(--shadow-color);
     display: flex;
     flex-direction: column;
     overflow: hidden;
@@ -119,59 +216,101 @@ body.modal-open {
     z-index: 2000;
 }
 
+.win95-window:not([style*="--window-gradient-start"]) {
+    background-color: var(--window-bg);
+}
+.win95-window[style*="--window-gradient-start"] {
+    background: linear-gradient(135deg, var(--window-gradient-start), var(--window-gradient-end));
+    background-size: 200% 200%;
+    animation: gradientShift var(--gradient-animation-speed) infinite alternate;
+}
+
+@keyframes gradientShift {
+    0% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+}
+
 .window-title {
-    background: linear-gradient(90deg, #000080, #1084d0);
-    color: white;
+    background: linear-gradient(90deg, var(--title-gradient-start), var(--title-gradient-end));
+    background-size: 200% 200%;
+    animation: gradientShift var(--gradient-animation-speed) infinite alternate;
+    color: var(--white);
     padding: 4px 4px 4px 8px;
     display: flex;
     align-items: center;
     font-weight: bold;
     font-size: 13px;
-    border-bottom: 2px solid #ffffff;
+    border-bottom: 2px solid var(--white);
     flex-shrink: 0;
 }
-.title-text { flex-grow: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.title-buttons { display: flex; gap: 2px; flex-shrink: 0; }
-.title-buttons button {
-    width: 24px; height: 24px; background: #c0c0c0;
-    border: 2px solid #ffffff; border-right-color: #808080; border-bottom-color: #808080;
-    color: black; font-weight: bold; text-align: center; line-height: 20px;
-    cursor: default; font-size: 16px; font-family: 'W95Font', 'MS Sans Serif', sans-serif; padding: 0;
+.title-text {
+    flex-grow: 1;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
-.title-buttons button:active { border: 2px solid #808080; border-right-color: #ffffff; border-bottom-color: #ffffff; }
+.title-buttons {
+    display: flex;
+    gap: 2px;
+    flex-shrink: 0;
+}
+.title-buttons button {
+    width: 24px;
+    height: 24px;
+    background: var(--panel-bg);
+    border: 2px solid var(--white);
+    border-right-color: var(--border-light);
+    border-bottom-color: var(--border-light);
+    color: var(--button-text);
+    font-weight: bold;
+    text-align: center;
+    line-height: 20px;
+    cursor: default;
+    font-size: 16px;
+    font-family: 'W95Font', 'MS Sans Serif', sans-serif;
+    padding: 0;
+}
+.title-buttons button:active {
+    border: 2px solid var(--border-light);
+    border-right-color: var(--white);
+    border-bottom-color: var(--white);
+}
 
 .menu-bar {
     display: flex;
-    background: #c0c0c0;
+    background: var(--panel-bg);
     padding: 4px 8px;
     gap: 20px;
-    border-bottom: 2px solid #ffffff;
+    border-bottom: 2px solid var(--white);
     flex-shrink: 0;
 }
 .menu-item {
     cursor: default;
     font-size: 12px;
     padding: 2px 4px;
+    color: var(--text-primary);
 }
 .menu-item:hover {
-    background: #000080;
-    color: white;
+    background: var(--accent-blue);
+    color: var(--white);
 }
 
 .toolbar {
     display: flex;
-    background: #c0c0c0;
+    background: var(--panel-bg);
     padding: 4px;
     gap: 4px;
-    border-bottom: 2px solid #ffffff;
+    border-bottom: 2px solid var(--white);
     flex-shrink: 0;
 }
 .tool-button {
-    width: 26px; height: 26px;
-    background: #c0c0c0;
-    border: 2px solid #ffffff;
-    border-right-color: #808080;
-    border-bottom-color: #808080;
+    width: 26px;
+    height: 26px;
+    background: var(--panel-bg);
+    border: 2px solid var(--white);
+    border-right-color: var(--border-light);
+    border-bottom-color: var(--border-light);
     font-size: 16px;
     cursor: default;
     display: flex;
@@ -179,14 +318,14 @@ body.modal-open {
     justify-content: center;
 }
 .tool-button:active {
-    border: 2px solid #808080;
-    border-right-color: #ffffff;
-    border-bottom-color: #ffffff;
+    border: 2px solid var(--border-light);
+    border-right-color: var(--white);
+    border-bottom-color: var(--white);
 }
 
 .window-content {
     display: flex;
-    background: #c0c0c0;
+    background: var(--panel-bg);
     padding: 8px;
     gap: 8px;
     flex: 1;
@@ -195,14 +334,15 @@ body.modal-open {
 
 .left-panel {
     width: 220px;
-    background: #ffffff;
-    border: 2px solid #808080;
-    border-right-color: #ffffff;
-    border-bottom-color: #ffffff;
+    background: var(--content-bg);
+    border: 2px solid var(--border-light);
+    border-right-color: var(--white);
+    border-bottom-color: var(--white);
     padding: 4px;
     overflow-y: auto;
     height: 100%;
     flex-shrink: 0;
+    color: var(--content-text);
 }
 
 .folder-list {
@@ -215,46 +355,47 @@ body.modal-open {
     margin: 2px 0;
     cursor: default;
     font-size: 12px;
-    border-bottom: 1px dotted #808080;
+    border-bottom: 1px dotted var(--border-dotted);
 }
 .folder-list li:last-child {
     border-bottom: none;
 }
 .folder-list li a {
-    color: #000080;
+    color: var(--accent-blue);
     text-decoration: none;
     display: block;
 }
 .folder-list li.selected {
-    background: #000080;
+    background: var(--accent-blue);
 }
 .folder-list li.selected a {
-    color: white;
+    color: var(--white);
 }
 
 .right-panel {
     flex-grow: 1;
-    background: #ffffff;
-    border: 2px solid #808080;
-    border-right-color: #ffffff;
-    border-bottom-color: #ffffff;
+    background: var(--content-bg);
+    border: 2px solid var(--border-light);
+    border-right-color: var(--white);
+    border-bottom-color: var(--white);
     padding: 0;
     height: 600px;
+    color: var(--content-text);
 }
 
-/* Стилизация SimpleBar под Windows 95 (для правой панели) */
+/* SimpleBar */
 .simplebar-track {
-    background: #c0c0c0;
-    border: 2px solid #ffffff;
-    border-right-color: #808080;
-    border-bottom-color: #808080;
+    background: var(--panel-bg);
+    border: 2px solid var(--white);
+    border-right-color: var(--border-light);
+    border-bottom-color: var(--border-light);
     width: 18px !important;
 }
 .simplebar-scrollbar::before {
-    background: #c0c0c0;
-    border: 2px solid #ffffff;
-    border-right-color: #808080;
-    border-bottom-color: #808080;
+    background: var(--panel-bg);
+    border: 2px solid var(--white);
+    border-right-color: var(--border-light);
+    border-bottom-color: var(--border-light);
     border-radius: 0;
     opacity: 1 !important;
     left: 0;
@@ -269,10 +410,10 @@ body.modal-open {
     left: 0;
     width: 100%;
     height: 18px;
-    background: #c0c0c0;
-    border: 2px solid #ffffff;
-    border-right-color: #808080;
-    border-bottom-color: #808080;
+    background: var(--panel-bg);
+    border: 2px solid var(--white);
+    border-right-color: var(--border-light);
+    border-bottom-color: var(--border-light);
     background-repeat: no-repeat;
     background-position: center;
     z-index: 1;
@@ -290,54 +431,16 @@ body.modal-open {
     bottom: 18px !important;
     height: auto !important;
 }
-
 .simplebar-content {
     padding: 15px 22px 15px 15px !important;
-}
-
-/* Список слоёв: простой нативный скроллбар */
-#layersList {
-    max-height: 150px;
-    background: #ffffff;
-    border: 2px inset;
-    padding: 4px;
-    overflow: hidden; /* скрываем всё, что выходит за пределы */
-}
-
-/* Для Chrome/Edge/Safari */
-#layersList::-webkit-scrollbar {
-    width: 16px;
-    background: #c0c0c0;
-    border: 2px solid #ffffff;
-    border-right-color: #808080;
-    border-bottom-color: #808080;
-}
-#layersList::-webkit-scrollbar-thumb {
-    background: #c0c0c0;
-    border: 2px solid #ffffff;
-    border-right-color: #808080;
-    border-bottom-color: #808080;
-    min-height: 40px;
-}
-#layersList::-webkit-scrollbar-thumb:hover {
-    background: #a0a0a0;
-}
-#layersList::-webkit-scrollbar-track {
-    background: #808080;
-    border: 2px solid #ffffff;
-    border-right-color: #808080;
-    border-bottom-color: #808080;
-}
-#layersList::-webkit-scrollbar-button {
-    display: none;
 }
 
 .section h2 {
     font-size: 16px;
     font-weight: bold;
     margin-bottom: 12px;
-    color: #000080;
-    border-bottom: 2px dotted #808080;
+    color: var(--accent-blue);
+    border-bottom: 2px dotted var(--border-dotted);
     padding-bottom: 4px;
 }
 .about-content {
@@ -358,90 +461,56 @@ body.modal-open {
 .about-photo img {
     width: 120px;
     height: 120px;
-    border: 2px solid #808080;
-    border-right-color: #ffffff;
-    border-bottom-color: #ffffff;
-    background: #c0c0c0;
+    border: 2px solid var(--border-light);
+    border-right-color: var(--white);
+    border-bottom-color: var(--white);
+    background: var(--panel-bg);
     max-width: 100%;
     height: auto;
 }
 
-.projects-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 15px;
-}
-.project-item {
-    background: #c0c0c0;
-    border: 2px solid #ffffff;
-    border-right-color: #808080;
-    border-bottom-color: #808080;
-    padding: 10px;
-    text-align: center;
-    max-width: 100%;
-    word-wrap: break-word;
-}
-.project-cover {
-    width: 100%;
-    height: 120px;
-    background: #808080;
-    border: 2px solid #808080;
-    border-right-color: #ffffff;
-    border-bottom-color: #ffffff;
-    margin-bottom: 8px;
-    overflow: hidden;
-}
-.project-cover img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-.project-title {
-    font-weight: bold;
-    font-size: 12px;
-    margin-bottom: 4px;
-}
-.project-desc {
-    font-size: 11px;
-    color: #404040;
-    margin-bottom: 10px;
-}
+/* ===== Кнопки (общие) ===== */
 .project-button, a.project-button {
     display: inline-block;
-    background: #c0c0c0;
-    border: 2px solid #ffffff;
-    border-right-color: #808080;
-    border-bottom-color: #808080;
+    background: var(--button-bg);
+    border: 2px solid var(--button-border);
+    border-right-color: var(--button-border-dark);
+    border-bottom-color: var(--button-border-dark);
     padding: 5px 12px;
     font-size: 12px;
     cursor: default;
     font-family: 'W95Font', 'MS Sans Serif', sans-serif;
     text-decoration: none;
-    color: black;
+    color: var(--button-text);
 }
 .project-button:active, a.project-button:active {
-    border: 2px solid #808080;
-    border-right-color: #ffffff;
-    border-bottom-color: #ffffff;
+    border: 2px solid var(--button-border-dark);
+    border-right-color: var(--button-border);
+    border-bottom-color: var(--button-border);
+}
+.project-button:disabled {
+    opacity: 0.5;
+    cursor: default;
 }
 
+/* ===== Paint ===== */
 .canvas-container {
     position: relative;
     width: 570px;
     height: 380px;
-    border: 3px solid #ffffff;
-    border-right-color: #404040;
-    border-bottom-color: #404040;
-    background: white;
+    border: 3px solid var(--white);
+    border-right-color: var(--border-dark);
+    border-bottom-color: var(--border-dark);
+    background: var(--white);
     box-sizing: content-box;
     flex-shrink: 0;
-    box-shadow: inset 0 0 0 1px #808080, 2px 2px 0px #00000080;
+    box-shadow: inset 0 0 0 1px var(--border-light), 2px 2px 0px var(--shadow-color);
 }
 .canvas-container canvas {
     display: block;
     width: 570px;
     height: 380px;
-    background: white;
+    background: var(--white);
     border: none;
 }
 #overlayCanvas {
@@ -460,6 +529,69 @@ body.modal-open {
     flex-direction: column;
     gap: 15px;
 }
+.paint-toolbar {
+    display: flex;
+    gap: 5px;
+    justify-content: space-between;
+}
+.paint-toolbar button {
+    flex: 1;
+}
+.paint-size {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+.paint-size input {
+    flex: 1;
+}
+.color-picker-row {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 5px;
+}
+.color-indicator {
+    width: 40px;
+    height: 40px;
+    border: 2px solid var(--border-light);
+    border-top-color: var(--white);
+    border-left-color: var(--white);
+}
+.hidden-color-picker {
+    position: absolute;
+    left: -9999px;
+}
+.paint-rgb {
+    border-top: 2px solid var(--border-light);
+    padding-top: 10px;
+}
+.rgb-slider {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 5px;
+}
+.rgb-slider label {
+    width: 20px;
+}
+.rgb-slider input {
+    flex-grow: 1;
+}
+.rgb-value {
+    width: 30px;
+}
+.hex-input {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    margin-top: 10px;
+}
+.hex-field {
+    flex: 1;
+    border: 2px inset var(--white);
+    font-family: monospace;
+}
 .paint-row {
     display: flex;
     gap: 20px;
@@ -467,11 +599,185 @@ body.modal-open {
     padding-bottom: 5px;
 }
 
+/* Панель слоёв */
+.layers-panel {
+    margin-top: 20px;
+    border: 2px solid var(--border-light);
+    padding: 8px;
+    background: var(--panel-bg);
+}
+.layers-panel-header {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 8px;
+    flex-wrap: wrap;
+}
+.layers-list {
+    max-height: 150px;
+    background: var(--content-bg);
+    border: 2px inset;
+    padding: 4px;
+    overflow-y: auto;
+}
+.layers-list::-webkit-scrollbar {
+    width: 16px;
+    background: var(--panel-bg);
+    border: 2px solid var(--white);
+    border-right-color: var(--border-light);
+    border-bottom-color: var(--border-light);
+}
+.layers-list::-webkit-scrollbar-thumb {
+    background: var(--panel-bg);
+    border: 2px solid var(--white);
+    border-right-color: var(--border-light);
+    border-bottom-color: var(--border-light);
+    min-height: 40px;
+}
+.layers-list::-webkit-scrollbar-thumb:hover {
+    background: #a0a0a0;
+}
+.layers-list::-webkit-scrollbar-track {
+    background: var(--border-light);
+    border: 2px solid var(--white);
+    border-right-color: var(--border-light);
+    border-bottom-color: var(--border-light);
+}
+.layers-list::-webkit-scrollbar-button {
+    display: none;
+}
+.recent-title {
+    margin-top: 20px;
+}
+.paint-gallery {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+}
+.paint-pagination {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+/* ===== Галерея ===== */
+.gallery-breadcrumbs {
+    margin-bottom: 10px;
+    font-size: 12px;
+}
+.gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 15px;
+    margin-top: 15px;
+}
+.gallery-item {
+    background: var(--gallery-bg);
+    border: 2px solid var(--modal-border-light);
+    border-right-color: var(--border-light);
+    border-bottom-color: var(--border-light);
+    padding: 8px;
+    text-align: center;
+    max-width: 100%;
+    word-wrap: break-word;
+}
+.gallery-cover {
+    width: 100%;
+    height: 120px;
+    background: var(--gallery-cover-bg);
+    border: 2px solid var(--gallery-cover-bg);
+    border-right-color: var(--modal-border-light);
+    border-bottom-color: var(--modal-border-light);
+    margin-bottom: 8px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.gallery-cover img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.gallery-title {
+    font-weight: bold;
+    font-size: 12px;
+    margin-bottom: 4px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    color: var(--gallery-text);
+}
+.gallery-type {
+    font-size: 11px;
+    color: var(--gallery-type);
+    margin-bottom: 8px;
+}
+.gallery-button {
+    display: inline-block;
+    background: var(--gallery-button-bg);
+    border: 2px solid var(--button-border);
+    border-right-color: var(--button-border-dark);
+    border-bottom-color: var(--button-border-dark);
+    padding: 4px 10px;
+    font-size: 11px;
+    cursor: default;
+    text-decoration: none;
+    color: var(--gallery-button-text);
+    width: 100%;
+}
+.gallery-button:active {
+    border: 2px solid var(--button-border-dark);
+    border-right-color: var(--button-border);
+    border-bottom-color: var(--button-border);
+}
+.folder-icon {
+    font-size: 32px;
+    line-height: 1;
+    color: var(--icon-folder);
+}
+.gallery-pagination,
+.guestbook-pagination {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 15px;
+}
+.pagination-indicator {
+    align-self: center;
+    font-size: 12px;
+}
+
+/* ===== Гостевая книга ===== */
+.guestbook-form {
+    margin-bottom: 20px;
+}
+.guestbook-form p {
+    margin-bottom: 5px;
+}
+.guestbook-input,
+.guestbook-textarea {
+    width: 100%;
+    margin-bottom: 8px;
+    padding: 4px;
+    border: 2px inset var(--white);
+    background: var(--white);
+    font-family: inherit;
+}
+.guestbook-send {
+    width: 100%;
+}
 .guestbook-messages {
     margin-top: 20px;
 }
 
-.captcha-overlay {
+/* ===== Настройки ===== */
+.settings-content p {
+    margin: 5px 0;
+}
+
+/* ===== Модальные окна ===== */
+.modal-overlay {
     position: fixed;
     top: 0;
     left: 0;
@@ -483,85 +789,136 @@ body.modal-open {
     justify-content: center;
     align-items: center;
 }
-.captcha-modal {
-    background-color: #c0c0c0;
-    border: 2px solid #ffffff;
-    border-right-color: #404040;
-    border-bottom-color: #404040;
-    padding: 20px;
-    width: 300px;
-    box-shadow: 2px 2px 0px #00000080;
+.modal {
+    background-color: var(--modal-bg);
+    border: 2px solid var(--modal-border-light);
+    border-right-color: var(--modal-border-dark);
+    border-bottom-color: var(--modal-border-dark);
+    padding: 0;
+    box-shadow: 2px 2px 0px var(--shadow-color);
     font-family: 'W95Font', 'MS Sans Serif', sans-serif;
-}
-.captcha-modal h3 { margin-top: 0; text-align: center; color: #000080; }
-.captcha-question { font-size: 18px; text-align: center; margin: 15px 0; }
-.captcha-input { width: 100%; padding: 4px; border: 2px inset #ffffff; background: #fff; font-family: inherit; box-sizing: border-box; }
-.captcha-input.error { background-color: #ffcccc; }
-.captcha-buttons { display: flex; gap: 10px; justify-content: center; margin-top: 20px; }
-.captcha-buttons button { min-width: 80px; }
-.shake-modal { animation: shake 0.3s ease-in-out; }
-
-.image-modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
-    z-index: 20000;
-    display: none;
-    justify-content: center;
-    align-items: center;
-}
-.image-modal {
-    background-color: #c0c0c0;
-    border: 2px solid #ffffff;
-    border-right-color: #404040;
-    border-bottom-color: #404040;
-    padding: 10px;
-    max-width: 90vw;
-    max-height: 90vh;
-    box-shadow: 2px 2px 0px #00000080;
     display: flex;
     flex-direction: column;
 }
-.image-modal-header {
+.modal-header {
+    background: linear-gradient(90deg, var(--accent-blue), var(--accent-lightblue));
+    background-size: 200% 200%;
+    animation: gradientShift var(--gradient-animation-speed) infinite alternate;
     display: flex;
     justify-content: space-between;
     align-items: center;
-    background: linear-gradient(90deg, #000080, #1084d0);
-    color: white;
+    color: var(--white);
     padding: 5px 5px 5px 10px;
     font-weight: bold;
-    margin-bottom: 10px;
 }
-.image-modal-header .title { font-size: 14px; }
-.image-modal-header .close {
-    width: 24px; height: 24px;
-    background: #c0c0c0;
-    border: 2px solid #ffffff;
-    border-right-color: #808080;
-    border-bottom-color: #808080;
-    color: black; text-align: center; line-height: 20px; cursor: default; font-size: 18px;
-    font-family: 'W95Font', 'MS Sans Serif', sans-serif;
+.modal-title {
+    font-size: 14px;
 }
-.image-modal-header .close:active { border: 2px solid #808080; border-right-color: #ffffff; border-bottom-color: #ffffff; }
-.image-modal-content {
-    overflow: auto;
+.modal-close {
+    width: 24px;
+    height: 24px;
+    background: var(--panel-bg);
+    border: 2px solid var(--modal-border-light);
+    border-right-color: var(--border-light);
+    border-bottom-color: var(--border-light);
+    color: var(--text-primary);
     text-align: center;
-    padding: 10px;
+    line-height: 20px;
+    cursor: default;
+    font-size: 18px;
 }
-.image-modal-content img {
+.modal-close:active {
+    border: 2px solid var(--border-light);
+    border-right-color: var(--modal-border-light);
+    border-bottom-color: var(--modal-border-light);
+}
+.modal-content {
+    padding: 20px;
+}
+.modal-loading {
+    text-align: center;
+    margin: 10px 0;
+    color: var(--accent-blue);
+}
+.modal-likes {
+    margin-top: 10px;
+}
+.modal-date {
+    font-size: 11px;
+    color: var(--text-muted);
+}
+.modal-nav {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+/* Капча */
+.captcha-modal {
+    width: 300px;
+}
+.captcha-question {
+    font-size: 18px;
+    text-align: center;
+    margin: 15px 0;
+}
+.captcha-input {
+    width: 100%;
+    padding: 4px;
+    border: 2px inset var(--modal-border-light);
+    background: var(--white);
+    box-sizing: border-box;
+}
+.captcha-input.error {
+    background-color: #ffcccc;
+}
+.captcha-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px;
+}
+.shake-modal {
+    animation: shake 0.3s ease-in-out;
+}
+
+/* Изображения в модалках */
+.image-modal,
+.gallery-modal {
+    padding: 10px;
+    max-width: 90vw;
+    max-height: 90vh;
+}
+.image-modal img,
+.gallery-modal img {
     max-width: 100%;
     max-height: 70vh;
-    border: 2px solid #808080;
-    border-top-color: #ffffff;
-    border-left-color: #ffffff;
-    background: white;
+    border: 2px solid var(--border-light);
+    border-top-color: var(--modal-border-light);
+    border-left-color: var(--modal-border-light);
+    background: var(--white);
 }
 
-#paintGallery img { cursor: pointer; }
+/* Переименование слоя */
+.rename-modal {
+    width: 300px;
+}
+.rename-input {
+    width: 100%;
+    padding: 4px;
+    border: 2px inset var(--modal-border-light);
+    background: var(--white);
+    margin-bottom: 15px;
+    box-sizing: border-box;
+}
+.rename-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+}
 
+/* ===== Clippy ===== */
 .clippy-container {
     position: fixed;
     bottom: 20px;
@@ -583,13 +940,13 @@ body.modal-open {
     right: 0;
     margin-bottom: 8px;
     background-color: #ffffe1;
-    border: 2px solid #000080;
+    border: 2px solid var(--accent-blue);
     border-radius: 5px;
     padding: 8px 12px;
     font-family: 'W95Font', 'MS Sans Serif', sans-serif;
     font-size: 13px;
-    color: black;
-    box-shadow: 2px 2px 0px #00000080;
+    color: var(--text-clippy);
+    box-shadow: 2px 2px 0px var(--shadow-color);
     max-width: 200px;
     word-wrap: break-word;
     white-space: normal;
@@ -610,24 +967,26 @@ body.modal-open {
     border-top: 10px solid #ffffe1;
 }
 
+/* ===== Статус-бар ===== */
 .status-bar {
-    background: #c0c0c0;
-    border-top: 2px solid #ffffff;
+    background: var(--panel-bg);
+    border-top: 2px solid var(--white);
     padding: 4px 8px;
     display: flex;
     gap: 12px;
     font-size: 12px;
     flex-shrink: 0;
+    color: var(--text-primary);
 }
 .status-bar span {
-    border-right: 1px dotted #808080;
+    border-right: 1px dotted var(--border-dotted);
     padding-right: 12px;
 }
 .status-bar span:last-child {
     border-right: none;
 }
 
-/* ===== Кнопка лайка с изображением ===== */
+/* ===== Кнопка лайка ===== */
 .like-button {
     background: none;
     border: none;
@@ -643,7 +1002,6 @@ body.modal-open {
     image-rendering: pixelated;
     image-rendering: crisp-edges;
 }
-
 .like-button:hover:not(:disabled) {
     transform: scale(1.2);
 }
@@ -652,25 +1010,25 @@ body.modal-open {
     cursor: default;
 }
 .like-button.unliked {
-    background-image: url('materialsl/like.png');
+    background-image: var(--icon-like-unliked);
 }
 .like-button.liked {
-    background-image: url('materialsl/liked.png');
+    background-image: var(--icon-like-liked);
 }
 
-/* ===== Стили для популярного рисунка ===== */
+/* ===== Популярный рисунок ===== */
 .top-painting {
-    background-color: #ffe246 !important;
-    border: 3px solid gold !important;
-    border-right-color: #b8860b !important;
-    border-bottom-color: #b8860b !important;
+    background-color: var(--top-bg) !important;
+    border: 3px solid var(--top-gold) !important;
+    border-right-color: var(--top-gold-dark) !important;
+    border-bottom-color: var(--top-gold-dark) !important;
     position: relative;
     z-index: 1;
     animation: softGlow 2s infinite alternate;
 }
 @keyframes softGlow {
-    from { box-shadow: 0 0 5px gold, 0 0 10px gold; }
-    to { box-shadow: 0 0 15px gold, 0 0 25px #ffd700; }
+    from { box-shadow: 0 0 5px var(--top-gold), 0 0 10px var(--top-gold); }
+    to { box-shadow: 0 0 15px var(--top-gold), 0 0 25px var(--top-gold); }
 }
 .top-painting::before {
     content: '';
@@ -680,7 +1038,7 @@ body.modal-open {
     transform: translateX(-50%);
     width: 39px;
     height: 27px;
-    background-image: url('materialsl/king.png');
+    background-image: var(--icon-king);
     background-size: contain;
     background-repeat: no-repeat;
     background-position: center;
@@ -703,9 +1061,9 @@ body.modal-open {
     background: linear-gradient(
         115deg,
         transparent 0%,
-        rgba(255,255,255,0.8) 35%,
-        rgba(255,255,255,1) 45%,
-        rgba(255,255,255,0.8) 55%,
+        var(--white-transparent) 35%,
+        var(--white) 45%,
+        var(--white-transparent) 55%,
         transparent 70%
     );
     background-size: 250% 250%;
@@ -719,7 +1077,7 @@ body.modal-open {
 
 .sparkle {
     position: absolute;
-    background-image: url('materialsl/star.png');
+    background-image: var(--icon-star);
     background-size: contain;
     background-repeat: no-repeat;
     image-rendering: pixelated;
@@ -752,56 +1110,53 @@ body.modal-open {
     gap: 8px;
     padding: 4px;
     margin: 2px 0;
-    background: #d4d0c8;
-    border: 2px solid #808080;
-    border-top-color: #ffffff;
-    border-left-color: #ffffff;
+    background: var(--layer-bg);
+    border: 2px solid var(--layer-border);
+    border-top-color: var(--white);
+    border-left-color: var(--white);
     cursor: default;
+    color: var(--layer-text);
 }
 .layer-item.active {
-    background: #000080;
-    color: white;
+    background: var(--layer-active);
+    color: var(--layer-text-active);
 }
 .layer-item.active input,
 .layer-item.active span {
-    color: white;
+    color: var(--layer-text-active);
 }
 .layer-visibility {
     width: 20px;
     height: 20px;
-    background: #c0c0c0;
-    border: 2px solid #808080;
-    border-top-color: #ffffff;
-    border-left-color: #ffffff;
+    background: var(--layer-visibility-bg);
+    border: 2px solid var(--layer-border);
+    border-top-color: var(--white);
+    border-left-color: var(--white);
     text-align: center;
     line-height: 16px;
     cursor: pointer;
 }
-
 .layer-visibility.visible {
-    background-image: url('materialsl/eye-open.png'); /* путь к твоему файлу */
+    background-image: var(--icon-eye-open);
     image-rendering: pixelated;
-    background-size: cover
+    background-size: cover;
 }
-
 .layer-visibility.hidden {
-    background-image: url('materialsl/eye-closed.png'); /* если есть */
+    background-image: var(--icon-eye-closed);
     image-rendering: pixelated;
-    background-size: cover
-    /* или можно сделать прозрачным: background-image: none; */
+    background-size: cover;
 }
-
 .layer-visibility.visible::before,
 .layer-visibility.hidden::before {
     content: none;
 }
-
 .layer-name {
     flex: 1;
     font-size: 12px;
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    color: inherit;
 }
 .layer-opacity {
     width: 60px;
@@ -813,256 +1168,45 @@ body.modal-open {
 .layer-move button {
     width: 22px;
     height: 22px;
-    background: #c0c0c0;
-    border: 2px solid #ffffff;
-    border-right-color: #808080;
-    border-bottom-color: #808080;
+    background: var(--panel-bg);
+    border: 2px solid var(--white);
+    border-right-color: var(--border-light);
+    border-bottom-color: var(--border-light);
     font-size: 12px;
     line-height: 18px;
     cursor: default;
+    color: var(--text-primary);
 }
 .layer-move button:active {
-    border: 2px solid #808080;
-    border-right-color: #ffffff;
-    border-bottom-color: #ffffff;
+    border: 2px solid var(--border-light);
+    border-right-color: var(--white);
+    border-bottom-color: var(--white);
 }
 
-/* ===== Модальное окно для переименования слоя ===== */
-.rename-modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.7);
-    z-index: 40000;
-    display: none;
-    justify-content: center;
-    align-items: center;
-}
-.rename-modal {
-    background-color: #c0c0c0;
-    border: 2px solid #ffffff;
-    border-right-color: #404040;
-    border-bottom-color: #404040;
-    padding: 0;
-    width: 300px;
-    box-shadow: 2px 2px 0px #00000080;
-    font-family: 'W95Font', 'MS Sans Serif', sans-serif;
-}
-.rename-modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: linear-gradient(90deg, #000080, #1084d0);
-    color: white;
-    padding: 5px 5px 5px 10px;
-    font-weight: bold;
-}
-.rename-modal-header .close {
-    width: 24px; height: 24px;
-    background: #c0c0c0;
-    border: 2px solid #ffffff;
-    border-right-color: #808080;
-    border-bottom-color: #808080;
-    color: black; text-align: center; line-height: 20px; cursor: default; font-size: 18px;
-}
-.rename-modal-header .close:active {
-    border: 2px solid #808080;
-    border-right-color: #ffffff;
-    border-bottom-color: #ffffff;
-}
-.rename-modal-content {
-    padding: 20px;
-}
-.rename-input {
-    width: 100%;
-    padding: 4px;
-    border: 2px inset #ffffff;
-    background: #fff;
-    font-family: inherit;
-    margin-bottom: 15px;
-    box-sizing: border-box;
-}
-.rename-buttons {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-}
-.rename-buttons button {
-    min-width: 80px;
-}
-
-/* ===== Галерея ===== */
-.gallery-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-    gap: 15px;
-    margin-top: 15px;
-}
-.gallery-item {
-    background: #c0c0c0;
-    border: 2px solid #ffffff;
-    border-right-color: #808080;
-    border-bottom-color: #808080;
-    padding: 8px;
-    text-align: center;
-    max-width: 100%;
-    word-wrap: break-word;
-}
-.gallery-cover {
-    width: 100%;
-    height: 120px;
-    background: #808080;
-    border: 2px solid #808080;
-    border-right-color: #ffffff;
-    border-bottom-color: #ffffff;
-    margin-bottom: 8px;
-    overflow: hidden;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-}
-.gallery-cover img {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-}
-.gallery-title {
-    font-weight: bold;
-    font-size: 12px;
-    margin-bottom: 4px;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-}
-.gallery-type {
-    font-size: 11px;
-    color: #404040;
-    margin-bottom: 8px;
-}
-.gallery-button {
-    display: inline-block;
-    background: #c0c0c0;
-    border: 2px solid #ffffff;
-    border-right-color: #808080;
-    border-bottom-color: #808080;
-    padding: 4px 10px;
-    font-size: 11px;
-    cursor: default;
-    text-decoration: none;
-    color: black;
-    width: 100%;
-}
-.gallery-button:active {
-    border: 2px solid #808080;
-    border-right-color: #ffffff;
-    border-bottom-color: #ffffff;
-}
-/* Хлебные крошки */
-#gallery-breadcrumbs {
-    margin-bottom: 12px;
-    font-size: 12px;
-    color: #000080;
-}
-.breadcrumb {
-    cursor: pointer;
-    text-decoration: underline;
-    color: #000080;
-    margin-right: 4px;
-}
-.breadcrumb:hover {
-    color: #ff0000;
-}
-/* Иконка папки */
-.folder-icon {
-    font-size: 32px;
-    line-height: 1;
-    color: #808080;
-}
-/* Пагинация галереи */
-.gallery-pagination {
-    display: flex;
-    gap: 10px;
-    justify-content: center;
-    margin-top: 15px;
-}
-
-/* Модальное окно для галереи */
-.gallery-modal-overlay {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.8);
-    z-index: 40000;
-    display: none;
-    justify-content: center;
-    align-items: center;
-}
-.gallery-modal {
-    background-color: #c0c0c0;
-    border: 2px solid #ffffff;
-    border-right-color: #404040;
-    border-bottom-color: #404040;
-    padding: 10px;
-    max-width: 90vw;
-    max-height: 90vh;
-    box-shadow: 2px 2px 0px #00000080;
-    display: flex;
-    flex-direction: column;
-}
-.gallery-modal-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    background: linear-gradient(90deg, #000080, #1084d0);
-    color: white;
-    padding: 5px 5px 5px 10px;
-    font-weight: bold;
-    margin-bottom: 10px;
-}
-.gallery-modal-header .title { font-size: 14px; }
-.gallery-modal-header .close {
-    width: 24px; height: 24px;
-    background: #c0c0c0;
-    border: 2px solid #ffffff;
-    border-right-color: #808080;
-    border-bottom-color: #808080;
-    color: black; text-align: center; line-height: 20px; cursor: default; font-size: 18px;
-}
-.gallery-modal-header .close:active { border: 2px solid #808080; border-right-color: #ffffff; border-bottom-color: #ffffff; }
-.gallery-modal-content {
-    overflow: auto;
-    text-align: center;
-    padding: 10px;
-}
-.gallery-modal-content img {
-    max-width: 100%;
-    max-height: 70vh;
-    border: 2px solid #808080;
-    border-top-color: #ffffff;
-    border-left-color: #ffffff;
-    background: white;
+/* ===== ОТКЛЮЧЕНИЕ АНИМАЦИИ ===== */
+body.disable-effects .win95-window[style*="--window-gradient-start"],
+body.disable-effects .window-title,
+body.disable-effects .modal-header {
+    animation: none;
+    background-size: auto;
 }
 
 /* ===== Адаптация ===== */
 @media (max-width: 800px) {
     .left-panel { width: 150px; }
-    .paint-row { flex-wrap: wrap !important; }
+    .paint-row { flex-wrap: wrap; }
     .canvas-container { width: 100%; height: auto; max-width: 570px; margin: 0 auto; }
     .canvas-container canvas { width: 100%; height: auto; }
     .paint-panel { flex: 0 0 100%; width: 100%; }
-    .paint-panel > div:first-child { flex-wrap: wrap; }
+    .paint-toolbar { flex-wrap: wrap; }
     * { font-size: 14px; }
     .project-button, a.project-button, .tool-button { padding: 4px 8px; font-size: 12px; }
-    #paintGallery { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
+    .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); }
 }
 @media (max-width: 500px) {
     .left-panel { width: 120px; }
-    .paint-panel > div:first-child button,
-    .paint-panel > div:first-child a.project-button { font-size: 11px; padding: 3px 4px; }
-    #paintGallery { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
+    .paint-toolbar button,
+    .paint-toolbar a.project-button { font-size: 11px; padding: 3px 4px; }
+    .gallery-grid { grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); }
     .color-swatch { width: 25px; height: 25px; }
 }

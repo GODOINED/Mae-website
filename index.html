@@ -62,14 +62,14 @@
                 <!-- Галерея -->
                 <div class="section" id="gallery">
                     <h2>Gallery</h2>
-                    <div id="gallery-breadcrumbs" style="margin-bottom: 10px; font-size: 12px;"></div>
+                    <div class="gallery-breadcrumbs" id="gallery-breadcrumbs"></div>
                     <div class="gallery-grid" id="gallery-container">
                         <p>Loading gallery...</p>
                     </div>
                     <!-- Пагинация для галереи -->
-                    <div class="gallery-pagination" style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
+                    <div class="gallery-pagination">
                         <button id="galleryPrevPageBtn" class="project-button" disabled>← Previous page</button>
-                        <span id="galleryPageIndicator" style="align-self: center; font-size: 12px;">Page 1</span>
+                        <span id="galleryPageIndicator" class="pagination-indicator">Page 1</span>
                         <button id="galleryNextPageBtn" class="project-button" disabled>Next page →</button>
                     </div>
                 </div>
@@ -84,18 +84,18 @@
                 <!-- Гостевая книга -->
                 <div class="section" id="guestbook">
                     <h2>Guestbook</h2>
-                    <div class="guestbook-form" style="margin-bottom: 20px;">
+                    <div class="guestbook-form">
                         <p><strong>Leave a message:</strong></p>
-                        <input type="text" id="gbName" placeholder="Your name" style="width: 100%; margin-bottom: 8px; padding: 4px; border: 2px inset #fff;">
-                        <textarea id="gbMessage" rows="3" placeholder="Your message..." style="width: 100%; margin-bottom: 8px; padding: 4px; border: 2px inset #fff; font-family: inherit;"></textarea>
-                        <button id="gbSend" class="project-button" style="width: 100%;">Send</button>
+                        <input type="text" id="gbName" class="guestbook-input" placeholder="Your name">
+                        <textarea id="gbMessage" class="guestbook-textarea" rows="3" placeholder="Your message..."></textarea>
+                        <button id="gbSend" class="project-button guestbook-send">Send</button>
                     </div>
                     <div id="gbMessages" class="guestbook-messages"></div>
                     
                     <!-- Пагинация для гостевой книги -->
-                    <div class="guestbook-pagination" style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
+                    <div class="guestbook-pagination">
                         <button id="guestbookPrevPageBtn" class="project-button" disabled>← Previous page</button>
-                        <span id="guestbookPageIndicator" style="align-self: center; font-size: 12px;">Page 1</span>
+                        <span id="guestbookPageIndicator" class="pagination-indicator">Page 1</span>
                         <button id="guestbookNextPageBtn" class="project-button" disabled>Next page →</button>
                     </div>
                 </div>
@@ -110,69 +110,69 @@
                         </div>
                         
                         <div class="paint-panel">
-                            <div style="display: flex; gap: 5px; justify-content: space-between;">
-                                <button id="toolBrush" class="project-button active" style="flex: 1;">Brush</button>
-                                <button id="toolEraser" class="project-button" style="flex: 1;">Eraser</button>
-                                <button id="clearCanvas" class="project-button" style="flex: 1;">Clear</button>
-                                <button id="saveCanvas" class="project-button" style="flex: 1;">Save</button>
-                                <button id="undoBtn" class="project-button" style="flex: 1;">Undo</button>
+                            <div class="paint-toolbar">
+                                <button id="toolBrush" class="project-button active">Brush</button>
+                                <button id="toolEraser" class="project-button">Eraser</button>
+                                <button id="clearCanvas" class="project-button">Clear</button>
+                                <button id="saveCanvas" class="project-button">Save</button>
+                                <button id="undoBtn" class="project-button">Undo</button>
                             </div>
 
-                            <div style="display: flex; align-items: center; gap: 5px;">
-                                <label style="width: 40px;">Size:</label>
-                                <input type="range" id="brushSizeSlider" min="1" max="20" value="2" style="flex: 1;">
+                            <div class="paint-size">
+                                <label>Size:</label>
+                                <input type="range" id="brushSizeSlider" min="1" max="20" value="2">
                                 <span id="brushSizeValue">2</span>
                             </div>
 
                             <div>
                                 <div class="color-palette" id="colorPalette"></div>
-                                <div style="display: flex; align-items: center; gap: 5px; margin-top: 5px;">
-                                    <button id="pickColorBtn" class="project-button" style="flex: 1;">Pick Color</button>
-                                    <div id="currentColorIndicator" style="width: 40px; height: 40px; border: 2px solid #808080; border-top-color: #ffffff; border-left-color: #ffffff;"></div>
+                                <div class="color-picker-row">
+                                    <button id="pickColorBtn" class="project-button">Pick Color</button>
+                                    <div id="currentColorIndicator" class="color-indicator"></div>
                                 </div>
-                                <input type="color" id="colorPicker" style="position: absolute; left: -9999px;">
+                                <input type="color" id="colorPicker" class="hidden-color-picker">
                             </div>
 
-                            <div style="border-top: 2px solid #808080; padding-top: 10px;">
-                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
-                                    <label style="width: 20px;">R:</label>
-                                    <input type="range" id="redSlider" min="0" max="255" value="0" style="flex-grow: 1;">
-                                    <span id="redValue" style="width: 30px;">0</span>
+                            <div class="paint-rgb">
+                                <div class="rgb-slider">
+                                    <label>R:</label>
+                                    <input type="range" id="redSlider" min="0" max="255" value="0">
+                                    <span id="redValue" class="rgb-value">0</span>
                                 </div>
-                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
-                                    <label style="width: 20px;">G:</label>
-                                    <input type="range" id="greenSlider" min="0" max="255" value="0" style="flex-grow: 1;">
-                                    <span id="greenValue" style="width: 30px;">0</span>
+                                <div class="rgb-slider">
+                                    <label>G:</label>
+                                    <input type="range" id="greenSlider" min="0" max="255" value="0">
+                                    <span id="greenValue" class="rgb-value">0</span>
                                 </div>
-                                <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
-                                    <label style="width: 20px;">B:</label>
-                                    <input type="range" id="blueSlider" min="0" max="255" value="0" style="flex-grow: 1;">
-                                    <span id="blueValue" style="width: 30px;">0</span>
+                                <div class="rgb-slider">
+                                    <label>B:</label>
+                                    <input type="range" id="blueSlider" min="0" max="255" value="0">
+                                    <span id="blueValue" class="rgb-value">0</span>
                                 </div>
-                                <div style="display: flex; align-items: center; gap: 5px; margin-top: 10px;">
+                                <div class="hex-input">
                                     <label>Hex:</label>
-                                    <input type="text" id="hexInput" value="#000000" style="flex: 1; border: 2px inset #fff; font-family: monospace;">
-                                    <button id="applyHex" class="project-button" style="padding: 2px 8px;">Apply</button>
+                                    <input type="text" id="hexInput" value="#000000" class="hex-field">
+                                    <button id="applyHex" class="project-button">Apply</button>
                                 </div>
                             </div>
                         </div>
                     </div>
 
                     <!-- Панель слоёв -->
-                    <div class="layers-panel" style="margin-top: 20px; border: 2px solid #808080; padding: 8px; background: #c0c0c0;">
-                        <div style="display: flex; gap: 5px; margin-bottom: 8px; flex-wrap: wrap;">
+                    <div class="layers-panel">
+                        <div class="layers-panel-header">
                             <button id="addLayerBtn" class="project-button">➕ Add layer</button>
                             <button id="deleteLayerBtn" class="project-button">➖ Delete layer</button>
                             <button id="mergeDownBtn" class="project-button">⬇️ Merge down</button>
                         </div>
-                        <div id="layersList" style="max-height: 150px; background: #ffffff; border: 2px inset; padding: 4px; overflow-y: auto;"></div>
+                        <div id="layersList" class="layers-list"></div>
                     </div>
 
-                    <h3 style="margin-top: 20px;">Recent Paintings</h3>
-                    <div id="paintGallery" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 10px;"></div>
-                    <div class="pagination" style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
+                    <h3 class="recent-title">Recent Paintings</h3>
+                    <div id="paintGallery" class="paint-gallery"></div>
+                    <div class="paint-pagination">
                         <button id="prevPageBtn" class="project-button" disabled>← Previous page</button>
-                        <span id="pageIndicator" style="align-self: center; font-size: 12px;">Page 1</span>
+                        <span id="pageIndicator" class="pagination-indicator">Page 1</span>
                         <button id="nextPageBtn" class="project-button" disabled>Next page →</button>
                     </div>
                 </div>
@@ -205,24 +205,24 @@
     </div>
 
     <!-- Модальное окно для просмотра рисунков -->
-    <div class="image-modal-overlay" id="imageModal">
-        <div class="image-modal">
-            <div class="image-modal-header">
-                <span class="title">View Painting</span>
-                <span class="close" id="closeImageModal">×</span>
+    <div class="modal-overlay image-modal-overlay" id="imageModal">
+        <div class="modal image-modal">
+            <div class="modal-header">
+                <span class="modal-title">View Painting</span>
+                <span class="modal-close" id="closeImageModal">×</span>
             </div>
-            <div class="image-modal-content">
+            <div class="modal-content">
                 <img id="modalImage" src="" alt="Full size painting">
-                <div id="modalLoading" style="text-align: center; margin: 10px 0; font-family: 'W95Font', monospace; color: #000080; display: none;">
+                <div id="modalLoading" class="modal-loading" style="display: none;">
                     <span>Loading</span>
                     <span class="loading-dots">...</span>
                 </div>
-                <div style="margin-top: 10px;">
+                <div class="modal-likes">
                     <span id="modalLikes">0</span> likes
                     <button id="modalLikeBtn" class="like-button"></button>
-                    <div id="modalDate" style="font-size: 11px; color: #404040; margin-top: 5px;"></div>
+                    <div id="modalDate" class="modal-date"></div>
                 </div>
-                <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
+                <div class="modal-nav">
                     <button id="modalPrevBtn" class="project-button">← Previous</button>
                     <button id="modalRandomBtn" class="project-button">🎲 Random</button>
                     <button id="modalNextBtn" class="project-button">Next →</button>
@@ -232,8 +232,8 @@
     </div>
     
     <!-- Модальное окно капчи -->
-    <div class="captcha-overlay" id="captchaOverlay">
-        <div class="captcha-modal" id="captchaModal">
+    <div class="modal-overlay captcha-overlay" id="captchaOverlay">
+        <div class="modal captcha-modal" id="captchaModal">
             <h3>Verification</h3>
             <div class="captcha-question" id="captchaQuestion">2 + 3 = ?</div>
             <input type="text" id="captchaAnswer" class="captcha-input" placeholder="Enter answer">
@@ -245,14 +245,14 @@
     </div>
 
     <!-- Модальное окно для переименования слоя -->
-    <div class="rename-modal-overlay" id="renameLayerModal">
-        <div class="rename-modal">
-            <div class="rename-modal-header">
-                <span class="title">Rename Layer</span>
-                <span class="close" id="closeRenameModal">×</span>
+    <div class="modal-overlay rename-modal-overlay" id="renameLayerModal">
+        <div class="modal rename-modal">
+            <div class="modal-header">
+                <span class="modal-title">Rename Layer</span>
+                <span class="modal-close" id="closeRenameModal">×</span>
             </div>
-            <div class="rename-modal-content">
-                <p style="margin-bottom: 10px;">Enter new layer name:</p>
+            <div class="modal-content">
+                <p>Enter new layer name:</p>
                 <input type="text" id="renameLayerInput" class="rename-input" placeholder="Layer name" maxlength="30">
                 <div class="rename-buttons">
                     <button id="renameLayerOk" class="project-button">OK</button>
@@ -263,19 +263,19 @@
     </div>
 
     <!-- Модальное окно для галереи -->
-    <div class="gallery-modal-overlay" id="galleryModal">
-        <div class="gallery-modal">
-            <div class="gallery-modal-header">
-                <span class="title">Gallery Image</span>
-                <span class="close" id="closeGalleryModal">×</span>
+    <div class="modal-overlay gallery-modal-overlay" id="galleryModal">
+        <div class="modal gallery-modal">
+            <div class="modal-header">
+                <span class="modal-title">Gallery Image</span>
+                <span class="modal-close" id="closeGalleryModal">×</span>
             </div>
-            <div class="gallery-modal-content">
+            <div class="modal-content">
                 <img id="galleryModalImage" src="" alt="Gallery image">
-                <div id="galleryModalLoading" style="text-align: center; margin: 10px 0; font-family: 'W95Font', monospace; color: #000080; display: none;">
+                <div id="galleryModalLoading" class="modal-loading" style="display: none;">
                     <span>Loading</span>
                     <span class="loading-dots">...</span>
                 </div>
-                <div style="display: flex; gap: 10px; justify-content: center; margin-top: 15px;">
+                <div class="modal-nav">
                     <button id="galleryModalPrevBtn" class="project-button">← Previous</button>
                     <button id="galleryModalNextBtn" class="project-button">Next →</button>
                 </div>
