@@ -1011,7 +1011,7 @@
     // Модальное окно для галереи
     const galleryModal = document.getElementById('galleryModal');
     const galleryModalImage = document.getElementById('galleryModalImage');
-    const closeGalleryModal = document.getElementById('closeGalleryModal');
+    const closeGalleryModalBtn = document.getElementById('closeGalleryModal'); // переименовано
     const galleryModalPrevBtn = document.getElementById('galleryModalPrevBtn');
     const galleryModalNextBtn = document.getElementById('galleryModalNextBtn');
     const galleryModalLoading = document.getElementById('galleryModalLoading');
@@ -1201,18 +1201,18 @@
         galleryModalNextBtn.disabled = currentGalleryImageIndex === currentGalleryFiles.length - 1;
     }
 
-    function closeGalleryModal() {
+    function closeGalleryModalFunc() { // переименовано
         galleryModal.style.display = 'none';
         galleryModalImage.src = '';
         enableBodyScroll();
     }
 
-    if (closeGalleryModal) {
-        closeGalleryModal.addEventListener('click', closeGalleryModal);
+    if (closeGalleryModalBtn) {
+        closeGalleryModalBtn.addEventListener('click', closeGalleryModalFunc);
     }
     if (galleryModal) {
         galleryModal.addEventListener('click', (e) => {
-            if (e.target === galleryModal) closeGalleryModal();
+            if (e.target === galleryModal) closeGalleryModalFunc();
         });
     }
     if (galleryModalPrevBtn) {
