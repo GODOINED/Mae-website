@@ -999,7 +999,7 @@
     let currentGalleryItems = [];
     let currentGalleryFiles = [];
     let galleryCurrentPage = 0;
-    const galleryPageSize = 24; // 6 колонок × 4 ряда = 24 элемента
+    const galleryPageSize = 24;
     let galleryTotalPages = 0;
 
     const galleryContainer = document.getElementById('gallery-container');
@@ -1008,7 +1008,6 @@
     const galleryNextBtn = document.getElementById('galleryNextPageBtn');
     const galleryPageIndicator = document.getElementById('galleryPageIndicator');
 
-    // Модальное окно для галереи
     const galleryModal = document.getElementById('galleryModal');
     const galleryModalImage = document.getElementById('galleryModalImage');
     const closeGalleryModalBtn = document.getElementById('closeGalleryModal'); // переименовано
@@ -1201,7 +1200,7 @@
         galleryModalNextBtn.disabled = currentGalleryImageIndex === currentGalleryFiles.length - 1;
     }
 
-    function closeGalleryModalFunc() { // переименовано
+    function closeGalleryModalFunc() {
         galleryModal.style.display = 'none';
         galleryModalImage.src = '';
         enableBodyScroll();
