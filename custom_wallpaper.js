@@ -1,4 +1,4 @@
-// custom_wallpaper.js — лёгкое волнистое искажение в стиле Windows 98
+// custom_wallpaper.js — просто фон (картинка или градиент)
 (function() {
     let canvas = null;
     let ctx = null;
@@ -6,32 +6,21 @@
     let resizeHandler = null;
     let bgImage = null;
     let imageLoaded = false;
-    let time = 0;
-
-    // ===== НАСТРОЙКИ ЭФФЕКТА =====
-    const config = {
-        amplitude: 10,          // сила искажения (пиксели) – чем меньше, тем незаметнее
-        frequency: 0.02,        // частота волн (чем больше, тем чаще)
-        speed: 2,               // скорость движения
-        steps: 50               // количество полос (больше = плавнее, но чуть тяжелее)
-    };
 
     function loadImage() {
-        return new Promise((resolve, reject) => {
-            const img = new Image();
-            img.src = 'materialsl/wallpaper.jpg'; // путь к твоему изображению
-            img.crossOrigin = 'anonymous';
-            img.onload = () => {
-                bgImage = img;
-                imageLoaded = true;
-                resolve();
-            };
-            img.onerror = () => {
-                console.warn('Не удалось загрузить изображение, используется градиент');
-                imageLoaded = false;
-                resolve();
-            };
-        });
+        const img = new Image();
+        img.src = 'materialsl/wallpaper.jpg'; // путь к твоей картинке
+        img.crossOrigin = 'anonymous';
+        img.onload = () => {
+            bgImage = img;
+            imageLoaded = true;
+            // если canvas уже есть, перерисуем
+            if (ctx) draw();
+        };
+        img.onerror = () => {
+            console.warn('Не удалось загрузить изображение, используется градиент');
+            imageLoaded = false;
+        };
     }
 
     function draw() {
@@ -39,37 +28,17 @@
 
         const width = canvas.width;
         const height = canvas.height;
-        const amp = config.amplitude;
-        const freq = config.frequency;
-        const speed = config.speed;
-        const steps = config.steps;
-
-        ctx.clearRect(0, 0, width, height);
 
         if (imageLoaded && bgImage) {
-            // Масштабируем изображение на весь холст (с сохранением пропорций)
+            // Масштабируем картинку, чтобы она покрыла весь экран без искажений
             const scale = Math.max(width / bgImage.width, height / bgImage.height);
-            const imgWidth = bgImage.width * scale;
-            const imgHeight = bgImage.height * scale;
-            const offsetX = (width - imgWidth) / 2;
-            const offsetY = (height - imgHeight) / 2;
-
-            // Рисуем искажённое изображение по полосам
-            const stepHeight = height / steps;
-            for (let i = 0; i < steps; i++) {
-                const y = i * stepHeight;
-                // Сдвиг по горизонтали зависит от y и времени
-                const shift = amp * Math.sin(y * freq + time * speed);
-
-                // Вырезаем полосу из исходного изображения и рисуем её со сдвигом
-                ctx.drawImage(
-                    bgImage,
-                    0, (y - offsetY) / scale, bgImage.width, stepHeight / scale, // исходная область
-                    shift, y, width, stepHeight                                   // целевая область
-                );
-            }
+            const imgW = bgImage.width * scale;
+            const imgH = bgImage.height * scale;
+            const x = (width - imgW) / 2;
+            const y = (height - imgH) / 2;
+            ctx.drawImage(bgImage, x, y, imgW, imgH);
         } else {
-            // Запасной градиент
+            // Градиент
             const gradient = ctx.createLinearGradient(0, 0, width, height);
             gradient.addColorStop(0, '#4b0082');
             gradient.addColorStop(1, '#8a2be2');
@@ -77,8 +46,8 @@
             ctx.fillRect(0, 0, width, height);
         }
 
-        time += 0.02; // увеличиваем фазу
-        animationId = requestAnimationFrame(draw);
+        // просто статичный кадр – анимация не нужна, поэтому не вызываем requestAnimationFrame повторно
+        // но чтобы canvas не стирался при ресайзе, оставим возможность перерисовки
     }
 
     function start() {
@@ -100,35 +69,21 @@
         resizeHandler = function() {
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
+            draw(); // перерисовываем при изменении размера
         };
         window.addEventListener('resize', resizeHandler);
         resizeHandler();
 
-        loadImage().then(() => {
-            draw();
-        });
+        loadImage();
     }
 
     function stop() {
-        if (animationId) {
-            cancelAnimationFrame(animationId);
-            animationId = null;
-        }
-        if (resizeHandler) {
-            window.removeEventListener('resize', resizeHandler);
-            resizeHandler = null;
-        }
-        if (canvas) {
-            canvas.remove();
-            canvas = null;
-            ctx = null;
-        }
+        if (resizeHandler) window.removeEventListener('resize', resizeHandler);
+        if (canvas) canvas.remove();
+        canvas = ctx = null;
         bgImage = null;
         imageLoaded = false;
     }
 
-    window.CustomWallpaper = {
-        start: start,
-        stop: stop
-    };
+    window.CustomWallpaper = { start, stop };
 })();

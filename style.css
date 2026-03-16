@@ -7,21 +7,26 @@
     --window-border-light: #314ea5;
     
     /* Градиент окна (если заданы, переопределяют --window-bg) */
-    --window-gradient-start: transparent;
-    --window-gradient-end: transparent;
+    --window-gradient-start: #000066;
+    --window-gradient-end: #000000;
+    --window-gradient-rotate: 180deg;
     
     /* Градиент заголовка окна */
     --title-gradient-start: #000066;
-    --title-gradient-end: #0a246a;
+    --title-gradient-end: #2e125a;
+    --title-gradient-rotate: 90deg;
     
     /* Цвета панелей (тулбар, меню, статус-бар) */
     --panel-bg: #13214d;
     --panel-border: #202a49;
     --panel-border-dark: #121e41;
+    --panel-gradient-start: transparent;   /* по умолчанию отключён */
+    --panel-gradient-end: transparent;
+    --panel-border-rotate: 145deg;
     
     /* Акцентные цвета (синий) */
     --accent-blue: #7262ff;
-    --accent-lightblue: #1084d0;
+    --accent-lightblue: rgb(100, 156, 194);
     
     /* Текст общий */
     --text-primary: #ffffff;
@@ -38,7 +43,7 @@
     /* Белые/чёрные акценты */
     --white: #312a81;
     --black: #000000;
-    --white-transparent: rgba(255,255,255,0.8);
+    --white-transparent: rgba(255, 255, 255, 0.8);
     
     /* Элементы слоёв (панель в Paint) */
     --layer-bg: #304074;
@@ -203,7 +208,10 @@ body.modal-open {
     width: 1200px;
     max-width: 95vw;
     max-height: 95vh;
-    background-color: var(--window-bg);
+    /* Фон: градиент, если переменные заданы, иначе сплошной цвет */
+    background: linear-gradient(var(--window-gradient-rotate), var(--window-gradient-start, var(--window-bg)), var(--window-gradient-end, var(--window-bg)));
+    background-size: 200% 200%;
+    animation: gradientShift var(--gradient-animation-speed) infinite alternate;
     border: 2px solid var(--border-light);
     border-right-color: var(--window-border-dark);
     border-bottom-color: var(--window-border-dark);
@@ -220,7 +228,7 @@ body.modal-open {
     background-color: var(--window-bg);
 }
 .win95-window[style*="--window-gradient-start"] {
-    background: linear-gradient(135deg, var(--window-gradient-start), var(--window-gradient-end));
+    background: linear-gradient(var(--window-gradient-rotate), var(--window-gradient-start), var(--window-gradient-end));
     background-size: 200% 200%;
     animation: gradientShift var(--gradient-animation-speed) infinite alternate;
 }
@@ -232,7 +240,7 @@ body.modal-open {
 }
 
 .window-title {
-    background: linear-gradient(90deg, var(--title-gradient-start), var(--title-gradient-end));
+    background: linear-gradient(var(--title-gradient-rotate), var(--title-gradient-start), var(--title-gradient-end));
     background-size: 200% 200%;
     animation: gradientShift var(--gradient-animation-speed) infinite alternate;
     color: var(--white);
@@ -278,13 +286,19 @@ body.modal-open {
 }
 
 .menu-bar {
+    background: linear-gradient(var(--panel-border-rotate), 
+        var(--panel-gradient-start, var(--panel-bg)), 
+        var(--panel-gradient-end, var(--panel-bg))
+    );
+    background-size: 200% 200%;
+    animation: gradientShift var(--gradient-animation-speed) infinite alternate;
     display: flex;
-    background: var(--panel-bg);
     padding: 4px 8px;
     gap: 20px;
     border-bottom: 2px solid var(--white);
     flex-shrink: 0;
 }
+
 .menu-item {
     cursor: default;
     font-size: 12px;
@@ -297,13 +311,19 @@ body.modal-open {
 }
 
 .toolbar {
+    background: linear-gradient(var(--panel-border-rotate), 
+        var(--panel-gradient-start, var(--panel-bg)), 
+        var(--panel-gradient-end, var(--panel-bg))
+    );
+    background-size: 200% 200%;
+    animation: gradientShift var(--gradient-animation-speed) infinite alternate;
     display: flex;
-    background: var(--panel-bg);
     padding: 4px;
     gap: 4px;
     border-bottom: 2px solid var(--white);
     flex-shrink: 0;
 }
+
 .tool-button {
     width: 26px;
     height: 26px;
@@ -324,8 +344,13 @@ body.modal-open {
 }
 
 .window-content {
+    background: linear-gradient(var(--panel-border-rotate), 
+        var(--panel-gradient-start, var(--panel-bg)), 
+        var(--panel-gradient-end, var(--panel-bg))
+    );
+    background-size: 200% 200%;
+    animation: gradientShift var(--gradient-animation-speed) infinite alternate;
     display: flex;
-    background: var(--panel-bg);
     padding: 8px;
     gap: 8px;
     flex: 1;
@@ -440,7 +465,7 @@ body.modal-open {
     font-weight: bold;
     margin-bottom: 12px;
     color: var(--accent-blue);
-    border-bottom: 2px dotted var(--border-dotted);
+    border-bottom: 2px dotted var(--accent-blue);
     padding-bottom: 4px;
 }
 .about-content {
@@ -969,7 +994,12 @@ body.modal-open {
 
 /* ===== Статус-бар ===== */
 .status-bar {
-    background: var(--panel-bg);
+    background: linear-gradient(var(--panel-border-rotate), 
+        var(--panel-gradient-start, var(--panel-bg)), 
+        var(--panel-gradient-end, var(--panel-bg))
+    );
+    background-size: 200% 200%;
+    animation: gradientShift var(--gradient-animation-speed) infinite alternate;
     border-top: 2px solid var(--white);
     padding: 4px 8px;
     display: flex;
@@ -978,6 +1008,7 @@ body.modal-open {
     flex-shrink: 0;
     color: var(--text-primary);
 }
+
 .status-bar span {
     border-right: 1px dotted var(--border-dotted);
     padding-right: 12px;

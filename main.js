@@ -101,57 +101,26 @@
 
     function loadSettings() {
         const savedSounds = localStorage.getItem('soundsEnabled');
-        const savedTheme = localStorage.getItem('theme');
         const savedAutosave = localStorage.getItem('autosaveEnabled');
-        const savedWallpaper = localStorage.getItem('wallpaper');
         if (savedSounds !== null) {
             soundsEnabled = savedSounds === 'true';
             soundsCheckbox.checked = soundsEnabled;
         }
-        if (savedTheme !== null) {
-            if (savedTheme === 'dark') themeDark.checked = true;
-            else themeLight.checked = true;
-        }
-        if (savedAutosave !== null) autosaveCheckbox.checked = savedAutosave === 'true';
-        if (savedWallpaper !== null) {
-            switch(savedWallpaper) {
-                case 'dark': wallDark.checked = true; setWallpaper('dark'); break;
-                case 'blue': wallBlue.checked = true; setWallpaper('blue'); break;
-                case 'green': wallGreen.checked = true; setWallpaper('green'); break;
-                case 'gray': wallGray.checked = true; setWallpaper('gray'); break;
-                case 'custom': wallCustom.checked = true; setWallpaper('custom'); break;
-                default: wallDark.checked = true; setWallpaper('dark');
-            }
-        } else {
-            wallDark.checked = true;
-            setWallpaper('dark');
+        if (savedAutosave !== null) {
+            autosaveCheckbox.checked = savedAutosave === 'true';
         }
     }
 
     function saveSettings() {
         if (!autosaveCheckbox.checked) return;
         localStorage.setItem('soundsEnabled', soundsEnabled);
-        localStorage.setItem('theme', themeDark.checked ? 'dark' : 'light');
         localStorage.setItem('autosaveEnabled', autosaveCheckbox.checked);
-        let wallpaper = 'dark';
-        if (wallBlue.checked) wallpaper = 'blue';
-        else if (wallGreen.checked) wallpaper = 'green';
-        else if (wallGray.checked) wallpaper = 'gray';
-        else if (wallCustom.checked) wallpaper = 'custom';
-        localStorage.setItem('wallpaper', wallpaper);
     }
 
     soundsCheckbox.addEventListener('change', function(e) {
         soundsEnabled = e.target.checked;
         if (autosaveCheckbox.checked) saveSettings();
     });
-    themeDark.addEventListener('change', () => autosaveCheckbox.checked && saveSettings());
-    themeLight.addEventListener('change', () => autosaveCheckbox.checked && saveSettings());
-    wallDark.addEventListener('change', function() { setWallpaper('dark'); autosaveCheckbox.checked && saveSettings(); });
-    wallBlue.addEventListener('change', function() { setWallpaper('blue'); autosaveCheckbox.checked && saveSettings(); });
-    wallGreen.addEventListener('change', function() { setWallpaper('green'); autosaveCheckbox.checked && saveSettings(); });
-    wallGray.addEventListener('change', function() { setWallpaper('gray'); autosaveCheckbox.checked && saveSettings(); });
-    wallCustom.addEventListener('change', function() { setWallpaper('custom'); autosaveCheckbox.checked && saveSettings(); });
     autosaveCheckbox.addEventListener('change', function(e) { if (e.target.checked) saveSettings(); });
     loadSettings();
 
@@ -1710,3 +1679,15 @@
         });
     }
 })();
+
+if (window.CustomWallpaper) {
+    window.CustomWallpaper.start();
+} else {
+    // если скрипт ещё не загружен, подожди и запусти
+    const checkInterval = setInterval(() => {
+        if (window.CustomWallpaper) {
+            window.CustomWallpaper.start();
+            clearInterval(checkInterval);
+        }
+    }, 100);
+}
