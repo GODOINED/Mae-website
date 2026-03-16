@@ -1,4 +1,4 @@
-// custom_wallpaper.js — загружает изображение из materialsl и добавляет эффект волны (wave)
+// custom_wallpaper.js — эффект волнистого искажения (Windows 98 wave)
 (function() {
     let canvas = null;
     let ctx = null;
@@ -6,91 +6,103 @@
     let resizeHandler = null;
     let bgImage = null;           // загруженное изображение
     let imageLoaded = false;
-    let offsetX = 0;              // смещение для анимации волн
+    let time = 0;                 // для анимации
 
-    // Параметры волн
-    const waves = [
-        { y: 0.2, amp: 30, freq: 0.01, speed: 0.5, color: 'rgba(100, 150, 255, 0.15)' },
-        { y: 0.5, amp: 40, freq: 0.015, speed: 0.8, color: 'rgba(150, 100, 255, 0.1)' },
-        { y: 0.8, amp: 25, freq: 0.02, speed: 0.3, color: 'rgba(255, 100, 150, 0.12)' }
-    ];
+    // Параметры волны
+    const waveParams = {
+        amplitude: 30,             // сила искажения (пиксели)
+        frequency: 0.02,           // частота (чем больше, тем чаще волны)
+        speed: 2.5,                // скорость движения
+        time: 0
+    };
 
     function loadImage() {
         return new Promise((resolve, reject) => {
             const img = new Image();
-            // Укажи здесь путь к своему изображению в папке materialsl
-            img.src = 'materialsl/wallpaper.jpg'; // можно заменить на другое имя
-            img.crossOrigin = 'anonymous'; // если нужно
+            // Путь к твоему изображению (можно заменить на любое другое)
+            img.src = 'materialsl/wallpaper.jpg';
+            img.crossOrigin = 'anonymous';
             img.onload = () => {
                 bgImage = img;
                 imageLoaded = true;
                 resolve();
             };
             img.onerror = () => {
-                console.error('Failed to load background image');
-                // Если не загрузилось, создаём запасной градиент (на всякий случай)
+                console.warn('Failed to load wallpaper image, using gradient fallback');
                 imageLoaded = false;
                 reject();
             };
         });
     }
 
-    function draw() {
+    // Рисует искажённое изображение или градиент
+    function drawDistorted() {
         if (!ctx || !canvas) return;
 
         const width = canvas.width;
         const height = canvas.height;
 
+        // Очищаем
         ctx.clearRect(0, 0, width, height);
 
-        // Если изображение загружено – рисуем его, растягивая на весь экран
+        // Если изображение загружено – используем его, иначе рисуем градиент
         if (imageLoaded && bgImage) {
-            ctx.drawImage(bgImage, 0, 0, width, height);
+            // Создаём временный canvas, чтобы рисовать искажённое изображение
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = width;
+            tempCanvas.height = height;
+            const tempCtx = tempCanvas.getContext('2d');
+
+            // Рисуем изображение на временном canvas (масштабируем под размер)
+            tempCtx.drawImage(bgImage, 0, 0, width, height);
+
+            // Получаем данные пикселей временного canvas
+            const imageData = tempCtx.getImageData(0, 0, width, height);
+            const data = imageData.data;
+
+            // Создаём новый ImageData для искажённого изображения
+            const distortedData = ctx.createImageData(width, height);
+            const distorted = distortedData.data;
+
+            // Проходим по каждой строке
+            for (let y = 0; y < height; y++) {
+                // Сдвиг по X зависит от y и времени
+                // Можно также сделать зависимость от x для более сложного эффекта, но классика – горизонтальное смещение, зависящее от y.
+                const offset = Math.floor(
+                    waveParams.amplitude * Math.sin(y * waveParams.frequency + waveParams.time)
+                );
+
+                for (let x = 0; x < width; x++) {
+                    const srcX = x + offset;
+                    // Если srcX выходит за пределы – оставляем чёрный (или можно зациклить)
+                    if (srcX < 0 || srcX >= width) continue;
+
+                    const srcIndex = (y * width + srcX) * 4;
+                    const dstIndex = (y * width + x) * 4;
+
+                    distorted[dstIndex] = data[srcIndex];
+                    distorted[dstIndex + 1] = data[srcIndex + 1];
+                    distorted[dstIndex + 2] = data[srcIndex + 2];
+                    distorted[dstIndex + 3] = data[srcIndex + 3];
+                }
+            }
+
+            // Рисуем искажённое изображение на основном canvas
+            ctx.putImageData(distortedData, 0, 0);
         } else {
-            // Запасной вариант – красивый градиент (на случай ошибки загрузки)
+            // Запасной вариант – градиент (тоже можно искажать, но для простоты оставим без искажения)
             const gradient = ctx.createLinearGradient(0, 0, width, height);
             gradient.addColorStop(0, '#4b0082');
             gradient.addColorStop(1, '#8a2be2');
             ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, width, height);
         }
+    }
 
-        // Рисуем волны (полупрозрачные синусоидальные полосы)
-        offsetX += 0.02; // скорость смещения волн (можно регулировать)
-
-        waves.forEach(wave => {
-            const yPos = height * wave.y; // базовая вертикальная позиция
-            ctx.beginPath();
-            ctx.strokeStyle = wave.color;
-            ctx.lineWidth = 3;
-
-            for (let x = 0; x < width; x += 5) {
-                const waveOffset = Math.sin(x * wave.freq + offsetX * wave.speed) * wave.amp;
-                const y = yPos + waveOffset;
-                if (x === 0) {
-                    ctx.moveTo(x, y);
-                } else {
-                    ctx.lineTo(x, y);
-                }
-            }
-            ctx.stroke();
-
-            // Добавим вторую линию чуть ниже для эффекта "толстой волны"
-            ctx.beginPath();
-            for (let x = 0; x < width; x += 5) {
-                const waveOffset = Math.sin(x * wave.freq + offsetX * wave.speed + 1) * wave.amp;
-                const y = yPos + waveOffset + 10;
-                if (x === 0) {
-                    ctx.moveTo(x, y);
-                } else {
-                    ctx.lineTo(x, y);
-                }
-            }
-            ctx.strokeStyle = wave.color.replace('0.15', '0.1'); // чуть прозрачнее
-            ctx.stroke();
-        });
-
-        animationId = requestAnimationFrame(draw);
+    function animate() {
+        waveParams.time += 0.02 * waveParams.speed; // увеличиваем фазу
+        drawDistorted();
+        animationId = requestAnimationFrame(animate);
     }
 
     function start() {
@@ -113,20 +125,20 @@
             if (!canvas) return;
             canvas.width = window.innerWidth;
             canvas.height = window.innerHeight;
-            // при изменении размера canvas изображение перерисуется в следующем кадре
+            // Перерисовываем с новым размером
+            drawDistorted();
         };
 
         window.addEventListener('resize', resizeHandler);
-        resizeHandler();
+        resizeHandler(); // устанавливаем размер
 
         // Загружаем изображение и после запускаем анимацию
         loadImage()
             .catch(() => {
-                // если не загрузилось, всё равно запускаем (будет градиент)
+                // даже если нет изображения, запускаем анимацию (будет градиент)
             })
             .finally(() => {
-                // запускаем анимацию
-                draw();
+                animate();
             });
     }
 
