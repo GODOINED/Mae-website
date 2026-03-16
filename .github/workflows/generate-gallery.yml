@@ -3,32 +3,34 @@ name: Generate Gallery JSON
 on:
   push:
     branches:
-      - main  # или master, если твой основной бранч называется master
-  workflow_dispatch:  # позволяет запускать вручную
+      - main   # или master, если твой основной бранч называется master
+    paths:
+      - 'gallery/**'   # запускать только если изменения в папке gallery
+  workflow_dispatch:   # позволяет запускать вручную из интерфейса GitHub
 
 permissions:
-  contents: write  # разрешаем записывать изменения в репозиторий
+  contents: write   # разрешаем записывать изменения
 
 jobs:
   generate:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
-      
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
-      
+
       - name: Run gallery generator
         run: node generate-gallery.js
-      
-      - name: Commit and push if changes
+
+      - name: Commit and push if changed
         run: |
           git config --global user.name 'github-actions[bot]'
           git config --global user.email 'github-actions[bot]@users.noreply.github.com'
           git add gallery-structure.json
-          git diff --quiet && git diff --staged --quiet || git commit -m "Auto-update gallery structure"
+          git diff --quiet && git diff --staged --quiet || git commit -m "Auto-update gallery structure [skip ci]"
           git push
