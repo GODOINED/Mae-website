@@ -4,14 +4,12 @@ const path = require('path');
 const galleryDir = path.join(__dirname, 'gallery');
 const outputFile = path.join(__dirname, 'gallery-structure.json');
 
-// Разрешённые расширения изображений
 const allowedExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.webp', '.bmp'];
 
 function scanDir(dir) {
     const result = {};
     const items = fs.readdirSync(dir);
 
-    // Сортируем, чтобы папки и файлы шли по алфавиту
     items.sort((a, b) => a.localeCompare(b));
 
     const folders = [];
@@ -32,7 +30,6 @@ function scanDir(dir) {
         }
     });
 
-    // Сначала обрабатываем папки (рекурсивно), потом файлы
     folders.forEach(folder => {
         const folderPath = path.join(dir, folder);
         result[folder] = scanDir(folderPath);
@@ -47,14 +44,13 @@ function scanDir(dir) {
 
 try {
     if (!fs.existsSync(galleryDir)) {
-        console.error('❌ Папка gallery не найдена! Создай её и положи туда картинки.');
+        console.error('❌ Папка gallery не найдена!');
         process.exit(1);
     }
 
     const structure = scanDir(galleryDir);
     fs.writeFileSync(outputFile, JSON.stringify(structure, null, 2));
-    console.log('✅ gallery-structure.json успешно создан!');
-    console.log('📁 Структура:', JSON.stringify(structure, null, 2));
+    console.log('✅ gallery-structure.json создан!');
 } catch (err) {
     console.error('❌ Ошибка:', err);
 }
