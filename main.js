@@ -156,8 +156,8 @@
     loadSettings();
 
     // === Supabase клиент ===
-    const SUPABASE_URL = 'https://zirkmegtqfkfvyatgbgf.supabase.co';
-    const SUPABASE_ANON_KEY = 'sb_publishable_PB_s3zWbWYA-0-BtqH1M7g_7De-juWW';
+    const SUPABASE_URL = 'https://dxmhphrgdythjfusskgv.supabase.co';
+    const SUPABASE_ANON_KEY = 'sb_publishable_ttlSkBGBDRTyinl3eOMPig_bumVarwH';
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // === Гостевая книга ===
