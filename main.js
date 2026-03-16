@@ -474,41 +474,46 @@
     function renderGallery(folders, files) {
         if (!galleryContainer) return;
         galleryContainer.innerHTML = '';
-
+        galleryContainer.className = 'gallery-grid'; // добавляем класс сетки
+    
         if (folders.length === 0 && files.length === 0) {
-            galleryContainer.innerHTML = '<p style="color: #808080;">Empty folder.</p>';
+            galleryContainer.innerHTML = '<p style="color: #808080; grid-column: 1/-1;">Empty folder.</p>';
             return;
         }
-
-        // Сетка (аналогично проектам)
+    
+        // Сначала папки
         folders.forEach(folder => {
             const div = document.createElement('div');
-            div.className = 'project-item'; // переиспользуем стиль
+            div.className = 'gallery-item';
             div.innerHTML = `
-                <div class="project-cover" style="background: #808080; display: flex; align-items: center; justify-content: center; font-size: 24px;">📁</div>
-                <div class="project-title">${escapeHtml(folder.name)}</div>
-                <div class="project-desc">Folder</div>
-                <button class="project-button open-folder" data-path="${currentGalleryPath ? currentGalleryPath + '/' + folder.name : folder.name}">Open</button>
+                <div class="gallery-cover" style="background: #d4d0c8;">
+                    <span class="folder-icon">📁</span>
+                </div>
+                <div class="gallery-title">${escapeHtml(folder.name)}</div>
+                <div class="gallery-type">Folder</div>
+                <button class="gallery-button open-folder" data-path="${currentGalleryPath ? currentGalleryPath + '/' + folder.name : folder.name}">Open</button>
             `;
             galleryContainer.appendChild(div);
         });
-
+    
+        // Потом картинки
         files.forEach(file => {
-            // file может быть строкой (путь к картинке) или объектом с name, src
             const src = typeof file === 'string' ? file : file.src;
             const name = typeof file === 'string' ? src.split('/').pop() : (file.name || 'Image');
             const div = document.createElement('div');
-            div.className = 'project-item';
+            div.className = 'gallery-item';
             div.innerHTML = `
-                <div class="project-cover"><img src="${escapeHtml(src)}" alt="${escapeHtml(name)}" style="width: 100%; height: 100%; object-fit: cover;"></div>
-                <div class="project-title">${escapeHtml(name)}</div>
-                <div class="project-desc">Image</div>
-                <button class="project-button view-image" data-src="${escapeHtml(src)}">View</button>
+                <div class="gallery-cover">
+                    <img src="${escapeHtml(src)}" alt="${escapeHtml(name)}" loading="lazy">
+                </div>
+                <div class="gallery-title">${escapeHtml(name)}</div>
+                <div class="gallery-type">Image</div>
+                <button class="gallery-button view-image" data-src="${escapeHtml(src)}">View</button>
             `;
             galleryContainer.appendChild(div);
         });
-
-        // Обработчики для кнопок открытия папок
+    
+        // Обработчики (как и раньше)
         document.querySelectorAll('.open-folder').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
@@ -516,16 +521,13 @@
                 loadGallery(path);
             });
         });
-
-        // Обработчики для просмотра изображений (можно открывать в той же модалке, что и рисунки Paint)
+    
         document.querySelectorAll('.view-image').forEach(btn => {
             btn.addEventListener('click', (e) => {
                 e.preventDefault();
                 const src = btn.dataset.src;
-                // Здесь можно использовать существующую модалку, но нужно адаптировать
-                // Пока просто откроем в новом окне для теста:
+                // TODO: можно открыть в той же модалке, но пока в новой вкладке
                 window.open(src, '_blank');
-                // В будущем можно интегрировать с imageModal, но там ожидаются данные из paintings
             });
         });
     }
