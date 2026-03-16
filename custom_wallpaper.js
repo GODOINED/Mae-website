@@ -1,18 +1,14 @@
-// custom_wallpaper.js — настраиваемый эффект волны (WebGL)
+// custom_wallpaper.js — упрощённый эффект волны (WebGL)
 (function() {
     let canvas, gl, program, texture, animationId, resizeHandler;
     let startTime;
 
-    // ===== НАСТРОЙКИ ЭФФЕКТА (меняй смело!) =====
-    const waveParams = {
-        amplitude: 0.05,      // сила искажения (0.05 = 5% от ширины экрана; чем больше, тем сильнее волна)
-        frequency: 15.0,       // частота волн (чем больше, тем чаще)
-        speed: 2.0,            // скорость движения
-        horizontal: true,      // искажать по горизонтали? (если true, иначе вертикальное искажение)
-        vertical: false,       // добавить вертикальное искажение (экспериментально)
-        combine: false,        // если true, то горизонтальное и вертикальное комбинируются
-    };
+    // Настройки волны (меняй значения)
+    const amplitude = 0.05;   // сила искажения (0.05 = 5% от ширины экрана)
+    const frequency = 15.0;    // частота волн
+    const speed = 2.0;         // скорость движения
 
+    // Вершинный шейдер (стандартный)
     const vertexShaderSource = `
         attribute vec2 aPosition;
         varying vec2 vUv;
@@ -22,6 +18,7 @@
         }
     `;
 
+    // Фрагментный шейдер с волной
     const fragmentShaderSource = `
         precision highp float;
         varying vec2 vUv;
@@ -30,28 +27,14 @@
         uniform float uAmp;
         uniform float uFreq;
         uniform float uSpeed;
-        uniform bool uHorizontal;
-        uniform bool uVertical;
-        uniform bool uCombine;
 
         void main() {
             float time = uTime * uSpeed;
-            float offsetX = 0.0;
-            float offsetY = 0.0;
-
-            if (uHorizontal || uCombine) {
-                // Горизонтальное искажение (сдвиг по X зависит от Y)
-                offsetX = uAmp * sin(vUv.y * uFreq + time);
-            }
-            if (uVertical || uCombine) {
-                // Вертикальное искажение (сдвиг по Y зависит от X) – для эффекта ряби
-                offsetY = uAmp * 0.5 * sin(vUv.x * uFreq * 1.5 + time * 1.3);
-            }
-
-            vec2 distortedUv = vec2(vUv.x + offsetX, vUv.y + offsetY);
-            // Зацикливаем, чтобы края не обрезались (можно заменить на clamp, если нужно обрезание)
-            distortedUv = fract(distortedUv);
-
+            // Сдвиг по горизонтали зависит от вертикальной координаты
+            float offset = uAmp * sin(vUv.y * uFreq + time);
+            vec2 distortedUv = vec2(vUv.x + offset, vUv.y);
+            // Зацикливаем, чтобы не было пустых краёв
+            distortedUv.x = fract(distortedUv.x);
             vec4 color = texture2D(uTexture, distortedUv);
             gl_FragColor = color;
         }
@@ -89,7 +72,11 @@
         }
         gl.useProgram(program);
 
-        const vertices = new Float32Array([-1,-1, 1,-1, -1,1, -1,1, 1,-1, 1,1]);
+        // Вершинный буфер (квадрат из двух треугольников)
+        const vertices = new Float32Array([
+            -1, -1,  1, -1, -1,  1,
+            -1,  1,  1, -1,  1,  1
+        ]);
         const buffer = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
         gl.bufferData(gl.ARRAY_BUFFER, vertices, gl.STATIC_DRAW);
@@ -98,14 +85,21 @@
         gl.enableVertexAttribArray(positionLoc);
         gl.vertexAttribPointer(positionLoc, 2, gl.FLOAT, false, 0, 0);
 
-        // Передаём uniform-переменные
-        gl.uniform1f(gl.getUniformLocation(program, 'uAmp'), waveParams.amplitude);
-        gl.uniform1f(gl.getUniformLocation(program, 'uFreq'), waveParams.frequency);
-        gl.uniform1f(gl.getUniformLocation(program, 'uSpeed'), waveParams.speed);
-        gl.uniform1i(gl.getUniformLocation(program, 'uHorizontal'), waveParams.horizontal);
-        gl.uniform1i(gl.getUniformLocation(program, 'uVertical'), waveParams.vertical);
-        gl.uniform1i(gl.getUniformLocation(program, 'uCombine'), waveParams.combine);
+        // Получаем местоположения uniform-переменных
+        const uTimeLoc = gl.getUniformLocation(program, 'uTime');
+        const uAmpLoc = gl.getUniformLocation(program, 'uAmp');
+        const uFreqLoc = gl.getUniformLocation(program, 'uFreq');
+        const uSpeedLoc = gl.getUniformLocation(program, 'uSpeed');
 
+        // Устанавливаем значения (один раз)
+        gl.uniform1f(uAmpLoc, amplitude);
+        gl.uniform1f(uFreqLoc, frequency);
+        gl.uniform1f(uSpeedLoc, speed);
+
+        // Сохраняем location времени для обновления в цикле
+        program.uTimeLoc = uTimeLoc;
+
+        // Текстура
         gl.activeTexture(gl.TEXTURE0);
         gl.uniform1i(gl.getUniformLocation(program, 'uTexture'), 0);
 
@@ -133,9 +127,9 @@
     }
 
     function draw(time) {
-        if (!gl) return;
+        if (!gl || !program) return;
         const seconds = (time - startTime) * 0.001;
-        gl.uniform1f(gl.getUniformLocation(program, 'uTime'), seconds);
+        gl.uniform1f(program.uTimeLoc, seconds);
         gl.clear(gl.COLOR_BUFFER_BIT);
         gl.drawArrays(gl.TRIANGLES, 0, 6);
         animationId = requestAnimationFrame(draw);
@@ -181,7 +175,7 @@
     }
 
     function fallback2D() {
-        // Запасной 2D-градиент
+        console.log('Using 2D fallback gradient');
         const ctx = canvas.getContext('2d');
         function drawGradient() {
             if (!ctx || !canvas) return;
