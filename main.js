@@ -392,7 +392,7 @@
     async function loadGallery(path = '') {
         if (!galleryData) {
             try {
-                const response = await fetch('gallery.php'); // <-- вместо gallery-structure.json
+                const response = await fetch('gallery-structure.json');
                 if (!response.ok) throw new Error('Failed to load gallery data');
                 galleryData = await response.json();
             } catch (e) {

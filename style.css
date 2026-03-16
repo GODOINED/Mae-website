@@ -893,6 +893,17 @@ body.modal-open {
     min-width: 80px;
 }
 
+/* Хлебные крошки для галереи */
+#gallery-breadcrumbs {
+    margin-bottom: 10px;
+    font-size: 12px;
+    color: #000080;
+}
+.breadcrumb:hover {
+    text-decoration: underline;
+    color: #ff0000;
+}
+
 /* ===== Адаптация ===== */
 @media (max-width: 800px) {
     .left-panel { width: 150px; }
