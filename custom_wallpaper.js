@@ -26,8 +26,8 @@
         uniform float uTime;
 
         void main() {
-            float amp = 0.03;          // сила волны (чем больше, тем сильнее сдвиг)
-            float freq = 10.0;          // частота волн
+            float amp = 0.01;          // сила волны (чем больше, тем сильнее сдвиг)
+            float freq = 0.5;          // частота волн
             float offset = amp * sin(vUv.y * freq + uTime * 3.0); // сдвиг по X
             vec2 distortedUv = vec2(vUv.x + offset, vUv.y);
             // Если изображение выходит за пределы, зацикливаем (можно заменить на обрезание)
