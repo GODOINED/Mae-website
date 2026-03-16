@@ -59,29 +59,23 @@
     let customWallpaperLoaded = false;
 
     function setWallpaper(type) {
+        // Всегда используем custom, игнорируем переданный тип
+        // Останавливаем кастомный фон, если он был запущен
         if (window.CustomWallpaper && typeof window.CustomWallpaper.stop === 'function') {
             window.CustomWallpaper.stop();
         }
-
-        let gradient;
-        switch(type) {
-            case 'dark': gradient = 'linear-gradient(145deg, #1e1e1e 0%, #2d2d2d 100%)'; break;
-            case 'blue': gradient = 'linear-gradient(145deg, #003399 0%, #3366cc 100%)'; break;
-            case 'green': gradient = 'linear-gradient(145deg, #004d40 0%, #008b74 100%)'; break;
-            case 'gray': gradient = 'linear-gradient(145deg, #505050 0%, #808080 100%)'; break;
-            case 'custom':
-                body.style.background = 'none';
-                originalBackground = 'none';
-                if (window.CustomWallpaper) {
-                    window.CustomWallpaper.start();
-                } else {
-                    loadCustomWallpaperScript();
-                }
-                return;
-            default: gradient = 'linear-gradient(145deg, #1e1e1e 0%, #2d2d2d 100%)';
+        
+        // Убираем любой градиент с body
+        body.style.background = 'none';
+        originalBackground = 'none';
+        
+        // Запускаем custom фон
+        if (window.CustomWallpaper) {
+            window.CustomWallpaper.start();
+        } else {
+            // Если скрипт ещё не загружен, загружаем
+            loadCustomWallpaperScript();
         }
-        body.style.background = gradient;
-        originalBackground = gradient;
     }
 
     function loadCustomWallpaperScript() {
@@ -114,17 +108,13 @@
         }
         if (savedAutosave !== null) autosaveCheckbox.checked = savedAutosave === 'true';
         if (savedWallpaper !== null) {
-            switch(savedWallpaper) {
-                case 'dark': wallDark.checked = true; setWallpaper('dark'); break;
-                case 'blue': wallBlue.checked = true; setWallpaper('blue'); break;
-                case 'green': wallGreen.checked = true; setWallpaper('green'); break;
-                case 'gray': wallGray.checked = true; setWallpaper('gray'); break;
-                case 'custom': wallCustom.checked = true; setWallpaper('custom'); break;
-                default: wallDark.checked = true; setWallpaper('dark');
-            }
+            // Мы игнорируем сохранённый wallpaper, всегда ставим custom
+            // Но чтобы радиокнопки выглядели красиво, отметим custom
+            wallCustom.checked = true;
+            setWallpaper('custom');
         } else {
-            wallDark.checked = true;
-            setWallpaper('dark');
+            wallCustom.checked = true;
+            setWallpaper('custom');
         }
     }
 
@@ -147,11 +137,6 @@
     });
     themeDark.addEventListener('change', () => autosaveCheckbox.checked && saveSettings());
     themeLight.addEventListener('change', () => autosaveCheckbox.checked && saveSettings());
-    wallDark.addEventListener('change', function() { setWallpaper('dark'); autosaveCheckbox.checked && saveSettings(); });
-    wallBlue.addEventListener('change', function() { setWallpaper('blue'); autosaveCheckbox.checked && saveSettings(); });
-    wallGreen.addEventListener('change', function() { setWallpaper('green'); autosaveCheckbox.checked && saveSettings(); });
-    wallGray.addEventListener('change', function() { setWallpaper('gray'); autosaveCheckbox.checked && saveSettings(); });
-    wallCustom.addEventListener('change', function() { setWallpaper('custom'); autosaveCheckbox.checked && saveSettings(); });
     autosaveCheckbox.addEventListener('change', function(e) { if (e.target.checked) saveSettings(); });
     loadSettings();
 
